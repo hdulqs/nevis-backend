@@ -1,0 +1,23 @@
+<!--
+    https://logback.qos.ch/manual/configuration.html
+-->
+
+<configuration scan="true" scanPeriod="5 seconds">
+
+    <include resource="log/logback-appender-console.xml"/>
+    <!--<include resource="log/logback-appender-file-prod.xml"/>-->
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <!--<appender-ref ref="FILE"/>-->
+    </root>
+
+    <!--<logger name="org.springframework.security" level="INFO"/>-->
+    <!--<logger name="org.hibernate" level="DEBUG"/>-->
+    <!--<logger name="org.hibernate.SQL" level="DEBUG"/>-->
+    <!--
+    same in application.properties:
+        #logging.level.org.springframework.security=DEBUG
+    -->
+
+</configuration>

@@ -1,0 +1,9 @@
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <include resource="log/logback-appender-file-prod.xml"/>
+
+    <root level="WARN">
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

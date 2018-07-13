@@ -1,0 +1,9 @@
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <include resource="log/logback-appender-console.xml"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
