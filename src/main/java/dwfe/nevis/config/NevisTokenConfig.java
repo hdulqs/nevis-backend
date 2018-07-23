@@ -67,6 +67,7 @@ class NevisTokenEnhancer implements TokenEnhancer //== https://stackoverflow.com
             .setAdditionalInformation(Map.of(
                     "data", Map.of(
                             "id", aAccess.getId(),
+                            "username", aAccess.getUsername(),
                             "authorities", getAuthorities(aAccess.getAuthorities(), false),
                             "createdOn", formatDateTimeToUTCstring(aAccess.getCreatedOn())
                     )));
