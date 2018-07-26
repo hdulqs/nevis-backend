@@ -438,7 +438,7 @@ public class NevisAppTest
 
     //change password
     util.check(POST, prop.getResource().getPasswordReset(), null,
-            checkers_for_passwordReset(newpassForCheckers, mailingList.get(0).getData()));
+            checkers_for_passwordReset(username, newpassForCheckers, mailingList.get(0).getData()));
 
     assertEquals(1, mailingService.findSentNotEmptyData(type, username).size());
 

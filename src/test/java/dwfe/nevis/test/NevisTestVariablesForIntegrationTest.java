@@ -271,7 +271,7 @@ public class NevisTestVariablesForIntegrationTest
     );
   }
 
-  public static List<NevisTestChecker> checkers_for_passwordReset(String newpass, String existedKey)
+  public static List<NevisTestChecker> checkers_for_passwordReset(String username, String newpass, String existedKey)
   {
     var list = new ArrayList<NevisTestChecker>(List.of(
             NevisTestChecker.of(false, 200, Map.of(), "missing-newpass"),
@@ -289,7 +289,9 @@ public class NevisTestVariablesForIntegrationTest
             NevisTestChecker.of(false, 200, Map.of("newpass", newpass), "missing-confirm-key"),
             NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", ""), "empty-confirm-key"),
             NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", existedKey + "w"), "confirm-key-not-exist"),
-            NevisTestChecker.of(true, 200, Map.of("newpass", newpass, "key", existedKey))
+            NevisTestChecker.of(true, 200, Map.of("newpass", newpass, "key", existedKey), Map.of(
+                    "username", username
+            ))
     ));
     return list;
   }

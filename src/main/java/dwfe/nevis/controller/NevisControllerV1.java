@@ -380,6 +380,7 @@ public class NevisControllerV1
     var errorCodes = new ArrayList<String>();
     var key = req.key;
     var newpass = req.newpass;
+    var data = new HashMap<String, Object>();
 
     if (canUsePassword(newpass, req.newpassField, errorCodes)
             && isDefaultPreCheckOk(key, req.keyFieldFullName, errorCodes))
@@ -389,6 +390,7 @@ public class NevisControllerV1
       {
         var mailing = mailingOpt.get();
         var email = mailing.getEmail();
+        data.put("username", email);
 
         var aEmailOpt = emailService.findByValue(email);
         if (aEmailOpt.isPresent())
@@ -410,7 +412,7 @@ public class NevisControllerV1
       }
       else errorCodes.add(req.keyFieldFullName + "-not-exist");
     }
-    return getResponse(errorCodes);
+    return getResponse(errorCodes, data);
   }
 
 
