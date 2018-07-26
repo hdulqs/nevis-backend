@@ -374,54 +374,30 @@ public class NevisControllerV1
     return getResponse(errorCodes);
   }
 
-  @PostMapping("#{nevisConfigProperties.resource.passwordResetConfirm}")
-  public String passwordResetConfirm(@RequestBody ReqConfirm req)
+  @PostMapping("#{nevisConfigProperties.resource.passwordReset}")
+  public String passwordReset(@RequestBody ReqPasswordReset req)
   {
     var errorCodes = new ArrayList<String>();
     var key = req.key;
-    var fieldName = "confirm-key";
-    var data = new HashMap<String, Object>();
+    var newpass = req.newpass;
 
-    if (isDefaultPreCheckOk(key, fieldName, errorCodes))
+    if (canUsePassword(newpass, req.newpassField, errorCodes)
+            && isDefaultPreCheckOk(key, req.keyFieldFullName, errorCodes))
     {
       var mailingOpt = mailingService.findByTypeAndData(PASSWORD_RESET_CONFIRM, key);
       if (mailingOpt.isPresent())
       {
         var mailing = mailingOpt.get();
-        data.put("email", mailing.getEmail());
-        data.put("key", mailing.getData());
-        mailingService.save(mailing);
-      }
-      else errorCodes.add(fieldName + "-not-exist");
-    }
-    return getResponse(errorCodes, data);
-  }
+        var email = mailing.getEmail();
 
-  @PostMapping("#{nevisConfigProperties.resource.passwordReset}")
-  public String passwordReset(@RequestBody ReqPasswordReset req)
-  {
-    var errorCodes = new ArrayList<String>();
-    var email = req.email;
-    var key = req.key;
-    var newpass = req.newpass;
-
-    if (canUsePassword(newpass, req.newpassField, errorCodes)
-            && isDefaultPreCheckOk(key, req.keyFieldFullName, errorCodes)
-            && isDefaultPreCheckOk(email, "email", errorCodes)
-            && standardEmailCheck(email, "email", errorCodes))
-    {
-      var aEmailOpt = emailService.findByValue(email);
-      if (aEmailOpt.isPresent())
-      {
-        var mailingOpt = mailingService.findByTypeAndEmailAndData(PASSWORD_RESET_CONFIRM, email, key);
-        if (mailingOpt.isPresent())
+        var aEmailOpt = emailService.findByValue(email);
+        if (aEmailOpt.isPresent())
         {
-          var aEmail = aEmailOpt.get();
-          var mailing = mailingOpt.get();
+          var id = aEmailOpt.get().getAccountId();
 
           // the AccountAccess is guaranteed to exist because:
           // CONSTRAINT nevis_account_email_account_id_fk FOREIGN KEY (account_id) REFERENCES nevis_account_access (id)
-          var aAccess = accessService.findById(aEmail.getAccountId()).get();
+          var aAccess = accessService.findById(id).get();
           aAccess.setPassword(preparePasswordForDB(newpass));
           mailing.clear();
 
@@ -430,9 +406,9 @@ public class NevisControllerV1
                   mailing, mailingService
           );
         }
-        else errorCodes.add(req.keyFieldFullName + "-not-exist");
+        else errorCodes.add("email-not-exist");
       }
-      else errorCodes.add("email-not-exist");
+      else errorCodes.add(req.keyFieldFullName + "-not-exist");
     }
     return getResponse(errorCodes);
   }
@@ -1438,22 +1414,11 @@ class ReqPasswordChange
 
 class ReqPasswordReset
 {
-  public String email;
   public String key;
   String newpass;
 
   String keyFieldFullName = "confirm-key";
   String newpassField = "newpass";
-
-  public String getEmail()
-  {
-    return email;
-  }
-
-  public void setEmail(String email)
-  {
-    this.email = email;
-  }
 
   public String getKey()
   {

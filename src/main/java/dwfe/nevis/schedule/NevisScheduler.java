@@ -154,7 +154,7 @@ public class NevisScheduler
     }
     else if (PASSWORD_RESET_CONFIRM.equals(type))
     {
-      var resourceConfirmResetPass = prop.getFrontend().getResourcePasswordResetConfirm();
+      var resourceConfirmResetPass = prop.getFrontend().getResourcePasswordReset();
       result.put(subjKey, "Reset password");
       context.setVariable(dataKey, frontendHost + resourceConfirmResetPass + "/" + data);
     }

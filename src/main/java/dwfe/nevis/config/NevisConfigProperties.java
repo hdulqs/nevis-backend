@@ -68,7 +68,6 @@ public class NevisConfigProperties implements InitializingBean
     private String getAccountAccess = "/get-account-access";
     private String passwordChange = "/password-change";
     private String passwordResetReq = "/password-reset-req";
-    private String passwordResetConfirm = "/password-reset-confirm";
     private String passwordReset = "/password-reset";
 
     // Account.Email
@@ -199,16 +198,6 @@ public class NevisConfigProperties implements InitializingBean
     public void setPasswordResetReq(String passwordResetReq)
     {
       this.passwordResetReq = passwordResetReq;
-    }
-
-    public String getPasswordResetConfirm()
-    {
-      return passwordResetConfirm;
-    }
-
-    public void setPasswordResetConfirm(String passwordResetConfirm)
-    {
-      this.passwordResetConfirm = passwordResetConfirm;
     }
 
     public String getPasswordReset()
@@ -368,7 +357,7 @@ public class NevisConfigProperties implements InitializingBean
   {
     private String host = "http://localhost";
     private String resourceEmailConfirm = "/email-confirm";
-    private String resourcePasswordResetConfirm = "/password-reset";
+    private String resourcePasswordReset = "/password-reset";
 
     public String getHost()
     {
@@ -390,14 +379,14 @@ public class NevisConfigProperties implements InitializingBean
       this.resourceEmailConfirm = resourceEmailConfirm;
     }
 
-    public String getResourcePasswordResetConfirm()
+    public String getResourcePasswordReset()
     {
-      return resourcePasswordResetConfirm;
+      return resourcePasswordReset;
     }
 
-    public void setResourcePasswordResetConfirm(String resourcePasswordResetConfirm)
+    public void setResourcePasswordReset(String resourcePasswordReset)
     {
-      this.resourcePasswordResetConfirm = resourcePasswordResetConfirm;
+      this.resourcePasswordReset = resourcePasswordReset;
     }
   }
 
@@ -651,7 +640,6 @@ public class NevisConfigProperties implements InitializingBean
                     "|      %s%n" +
                     "|      %s%n" +
                     "|      %s%n" +
-                    "|      %s%n" +
                     "|                                                     %n" +
                     "|   Account.Email:                                    %n" +
                     "|      %s%n" +
@@ -699,7 +687,6 @@ public class NevisConfigProperties implements InitializingBean
             resource.getAccountAccess,
             resource.passwordChange,
             resource.passwordResetReq,
-            resource.passwordResetConfirm,
             resource.passwordReset,
 
             // Account.Email
@@ -721,7 +708,7 @@ public class NevisConfigProperties implements InitializingBean
 
             // Frontend
             frontend.host,
-            frontend.resourcePasswordResetConfirm,
+            frontend.resourcePasswordReset,
             frontend.resourceEmailConfirm
     );
   }

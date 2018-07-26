@@ -393,7 +393,6 @@ public class NevisAppTest
   private void performPasswordReset(String username, NevisAccountUsernameType usernameType, String curpass, String newpass, String newpassForCheckers)
   {
     passwordResetReq(username);
-    passwordResetConfirm(username);
     passwordReset(username, usernameType, curpass, newpass, newpassForCheckers);
   }
 
@@ -422,21 +421,6 @@ public class NevisAppTest
     assertEquals(2, mailingService.findSentNotEmptyData(type, username).size());
   }
 
-  private void passwordResetConfirm(String username)
-  {
-    logHead("Password Reset Confirm = " + username);
-
-    var type = PASSWORD_RESET_CONFIRM;
-
-    var mailingList = mailingService.findSentNotEmptyData(type, username);
-    assertEquals(2, mailingList.size());
-
-    util.check(POST, prop.getResource().getPasswordResetConfirm(), null,
-            checkers_for_passwordResetConfirm(username, mailingList.get(0).getData()));
-
-    assertEquals(2, mailingService.findSentNotEmptyData(type, username).size());
-  }
-
   private void passwordReset(String username, NevisAccountUsernameType usernameType, String curpass, String newpass, String newpassForCheckers)
   {
     logHead("Password Reset = " + username);
@@ -454,7 +438,7 @@ public class NevisAppTest
 
     //change password
     util.check(POST, prop.getResource().getPasswordReset(), null,
-            checkers_for_passwordReset(username, newpassForCheckers, mailingList.get(0).getData()));
+            checkers_for_passwordReset(newpassForCheckers, mailingList.get(0).getData()));
 
     assertEquals(1, mailingService.findSentNotEmptyData(type, username).size());
 

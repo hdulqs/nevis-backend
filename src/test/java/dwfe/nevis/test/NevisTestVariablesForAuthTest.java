@@ -36,7 +36,6 @@ public class NevisTestVariablesForAuthTest
     result.put(prop.getResource().getGetAccountAccess(), Map.of(USER, Map.of(GET, Map.of())));
     result.put(prop.getResource().getPasswordChange(), Map.of(USER, Map.of(POST, Map.of())));
     result.put(prop.getResource().getPasswordResetReq(), Map.of(ANY, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getPasswordResetConfirm(), Map.of(ANY, Map.of(POST, Map.of())));
     result.put(prop.getResource().getPasswordReset(), Map.of(ANY, Map.of(POST, Map.of())));
 
     // Account.Email

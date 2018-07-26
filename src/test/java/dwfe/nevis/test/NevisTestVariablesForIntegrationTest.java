@@ -271,21 +271,7 @@ public class NevisTestVariablesForIntegrationTest
     );
   }
 
-  public static List<NevisTestChecker> checkers_for_passwordResetConfirm(String email, String existedKey)
-  {
-    return List.of(
-            NevisTestChecker.of(false, 200, Map.of(), "missing-confirm-key"),
-            NevisTestChecker.of(false, 200, Map.of("key", ""), "empty-confirm-key"),
-            NevisTestChecker.of(false, 200, Map.of("key", "657"), "confirm-key-not-exist"),
-            NevisTestChecker.of(true, 200, Map.of(
-                    "key", existedKey
-            ), Map.of(
-                    "email", email,
-                    "key", existedKey
-            )));
-  }
-
-  public static List<NevisTestChecker> checkers_for_passwordReset(String email, String newpass, String existedKey)
+  public static List<NevisTestChecker> checkers_for_passwordReset(String newpass, String existedKey)
   {
     var list = new ArrayList<NevisTestChecker>(List.of(
             NevisTestChecker.of(false, 200, Map.of(), "missing-newpass"),
@@ -302,13 +288,8 @@ public class NevisTestVariablesForIntegrationTest
     list.addAll(List.of(
             NevisTestChecker.of(false, 200, Map.of("newpass", newpass), "missing-confirm-key"),
             NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", ""), "empty-confirm-key"),
-            NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", "123"), "missing-email"),
-            NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", "123", "email", ""), "empty-email"),
-            NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", "123", "email", "89012345678901234567890kkklkklklklkklklklklklklklk89012345678901234567890kkklkklklklkklklk1@gmail.com"), "exceeded-max100-email-length"),
-            NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", "123", "email", "..puqu@ff.ru"), "invalid-email"),
-            NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", "123", "email", "ehlo@mail.ru"), "email-not-exist"),
-            NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", existedKey, "email", "test1@dwfe.ru"), "confirm-key-not-exist"),
-            NevisTestChecker.of(true, 200, Map.of("newpass", newpass, "key", existedKey, "email", email))
+            NevisTestChecker.of(false, 200, Map.of("newpass", newpass, "key", existedKey + "w"), "confirm-key-not-exist"),
+            NevisTestChecker.of(true, 200, Map.of("newpass", newpass, "key", existedKey))
     ));
     return list;
   }
