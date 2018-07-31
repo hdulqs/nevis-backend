@@ -848,39 +848,54 @@ public class NevisControllerV1
         }
       }
 
-      var newCityNonPublic = req.cityNonPublic;
-      if (isDifferentValues(newCityNonPublic, aPersonal.getCityNonPublic()))
+      if (req.containsKey("cityNonPublic"))
       {
-        aPersonal.setCityNonPublic(newCityNonPublic);
-        isModified = true;
+        var newCityNonPublic = (Boolean) req.get("cityNonPublic");
+        if (isDifferentValues(newCityNonPublic, aPersonal.getCityNonPublic()))
+        {
+          aPersonal.setCityNonPublic(newCityNonPublic);
+          isModified = true;
+        }
       }
 
-      var newCompany = req.company;
-      if (isDifferentValues(newCompany, aPersonal.getCompany()))
+      if (req.containsKey("company"))
       {
-        aPersonal.setCompany(newCompany);
-        isModified = true;
+        var newCompany = (String) req.get("company");
+        if (!isObjEquals(newCompany, aPersonal.getCompany()))
+        {
+          aPersonal.setCompany(newCompany);
+          isModified = true;
+        }
       }
 
-      var newCompanyNonPublic = req.companyNonPublic;
-      if (isDifferentValues(newCompanyNonPublic, aPersonal.getCompanyNonPublic()))
+      if (req.containsKey("companyNonPublic"))
       {
-        aPersonal.setCompanyNonPublic(newCompanyNonPublic);
-        isModified = true;
+        var newCompanyNonPublic = (Boolean) req.get("companyNonPublic");
+        if (isDifferentValues(newCompanyNonPublic, aPersonal.getCompanyNonPublic()))
+        {
+          aPersonal.setCompanyNonPublic(newCompanyNonPublic);
+          isModified = true;
+        }
       }
 
-      var newPositionHeld = req.positionHeld;
-      if (isDifferentValues(newPositionHeld, aPersonal.getPositionHeld()))
+      if (req.containsKey("positionHeld"))
       {
-        aPersonal.setPositionHeld(newPositionHeld);
-        isModified = true;
+        var newPositionHeld = (String) req.get("positionHeld");
+        if (!isObjEquals(newPositionHeld, aPersonal.getPositionHeld()))
+        {
+          aPersonal.setPositionHeld(newPositionHeld);
+          isModified = true;
+        }
       }
 
-      var newPositionHeldNonPublic = req.positionHeldNonPublic;
-      if (isDifferentValues(newPositionHeldNonPublic, aPersonal.getPositionHeldNonPublic()))
+      if (req.containsKey("positionHeldNonPublic"))
       {
-        aPersonal.setPositionHeldNonPublic(newPositionHeldNonPublic);
-        isModified = true;
+        var newPositionHeldNonPublic = (Boolean) req.get("positionHeldNonPublic");
+        if (isDifferentValues(newPositionHeldNonPublic, aPersonal.getPositionHeldNonPublic()))
+        {
+          aPersonal.setPositionHeldNonPublic(newPositionHeldNonPublic);
+          isModified = true;
+        }
       }
 
       if (isModified && errorCodes.size() == 0)
