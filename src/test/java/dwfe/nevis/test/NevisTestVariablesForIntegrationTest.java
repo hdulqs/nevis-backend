@@ -503,7 +503,7 @@ public class NevisTestVariablesForIntegrationTest
           NevisTestChecker.of(true, 200, Map.of("curpass", Account7_Pass_Decoded, "newNickName", Account7_NICKNAME))
   );
 
-  public static final List<NevisTestChecker> checkers_for_updateAccountPersonal = List.of(
+  public static final List<NevisTestChecker> checkers_for_updateAccountPersonal1 = List.of(
           NevisTestChecker.of(false, 200, Map.of("gender", ""), "empty-gender"),
           NevisTestChecker.of(false, 200, Map.of("gender", "k"), "invalid-gender"),
           NevisTestChecker.of(false, 200, Map.of("dateOfBirth", ""), "empty-dateOfBirth"),
@@ -626,6 +626,55 @@ public class NevisTestVariablesForIntegrationTest
                                   "\"companyNonPublic\":false," +
                                   "\"positionHeld\":\"1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890\"," +
                                   "\"positionHeldNonPublic\":false," +
+                                  "\"updatedOn\":\"date\"" +
+                                  "}")
+          )
+  );
+
+  public static final List<NevisTestChecker> checkers_for_updateAccountPersonal2 = List.of(
+          NevisTestChecker.of(true, 200, JsonParserFactory.getJsonParser().parseMap(
+                  "{" +
+                          "\"nickNameNonPublic\":true," +
+                          "\"firstName\":null," +
+                          "\"firstNameNonPublic\":true," +
+                          "\"middleName\":null," +
+                          "\"middleNameNonPublic\":true," +
+                          "\"lastName\":null," +
+                          "\"lastNameNonPublic\":true," +
+                          "\"gender\":null," +
+                          "\"genderNonPublic\":true," +
+                          "\"dateOfBirth\":null," +
+                          "\"dateOfBirthNonPublic\":true," +
+                          "\"country\":null," +
+                          "\"countryNonPublic\":true," +
+                          "\"city\":null," +
+                          "\"cityNonPublic\":true," +
+                          "\"company\":null," +
+                          "\"companyNonPublic\":true," +
+                          "\"positionHeld\":null," +
+                          "\"positionHeldNonPublic\":true" +
+                          "}")
+                  , JsonParserFactory.getJsonParser().parseMap(
+                          "{\"nickName\":null," +
+                                  "\"nickNameNonPublic\":true," +
+                                  "\"firstName\":null," +
+                                  "\"firstNameNonPublic\":true," +
+                                  "\"middleName\":null," +
+                                  "\"middleNameNonPublic\":true," +
+                                  "\"lastName\":null," +
+                                  "\"lastNameNonPublic\":true," +
+                                  "\"gender\":null," +
+                                  "\"genderNonPublic\":true," +
+                                  "\"dateOfBirth\":null," +
+                                  "\"dateOfBirthNonPublic\":true," +
+                                  "\"country\":null," +
+                                  "\"countryNonPublic\":true," +
+                                  "\"city\":null," +
+                                  "\"cityNonPublic\":true," +
+                                  "\"company\":null," +
+                                  "\"companyNonPublic\":true," +
+                                  "\"positionHeld\":null," +
+                                  "\"positionHeldNonPublic\":true," +
                                   "\"updatedOn\":\"date\"" +
                                   "}")
           )

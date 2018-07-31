@@ -766,8 +766,7 @@ public class NevisAppTest
 
     var auth1 = auth.of(USER, Account6_NewEmail, EMAIL, Account6_Pass, clientTrusted);
 
-    util.check(POST, resource, auth1.access_token, checkers_for_updateAccountPersonal);
-
+    util.check(POST, resource, auth1.access_token, checkers_for_updateAccountPersonal1);
     checkAccountPersonal_ExactMatch(Account6_ID, NevisAccountPersonal.of(
             null, false,                           // nickName
             "12345678901234567890", false,         // firstName
@@ -779,6 +778,20 @@ public class NevisAppTest
             "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", false, // city
             "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", false, // company
             "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890", false) // positionHeld
+    );
+
+    util.check(POST, resource, auth1.access_token, checkers_for_updateAccountPersonal2);
+    checkAccountPersonal_ExactMatch(Account6_ID, NevisAccountPersonal.of(
+            null, true, // nickName
+            null, true, // firstName
+            null, true, // middleName
+            null, true, // lastName
+            null, true, // gender
+            null, true, // dateOfBirth
+            null, true, // country
+            null, true, // city
+            null, true, // company
+            null, true) // positionHeld
     );
   }
 

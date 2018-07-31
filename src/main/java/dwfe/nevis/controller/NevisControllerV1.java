@@ -687,7 +687,7 @@ public class NevisControllerV1
 
   @PreAuthorize("hasAuthority('USER')")
   @PostMapping("#{nevisConfigProperties.resource.updateAccountPersonal}")
-  public String updateAccountPersonal(@RequestBody ReqUpdateAccountPersonal req, OAuth2Authentication authentication)
+  public String updateAccountPersonal(@RequestBody Map<String, Object> req, OAuth2Authentication authentication)
   {
     var errorCodes = new ArrayList<String>();
     var id = getId(authentication);
@@ -699,112 +699,153 @@ public class NevisControllerV1
       var aPersonal = aPersonalOpt.get();
       var isModified = false;
 
-      var newNickNameNonPublic = req.nickNameNonPublic;
-      if (isDifferentValues(newNickNameNonPublic, aPersonal.getNickNameNonPublic()))
+      if (req.containsKey("nickNameNonPublic"))
       {
-        aPersonal.setNickNameNonPublic(newNickNameNonPublic);
-        isModified = true;
-      }
-
-      var newFirstName = req.firstName;
-      if (isDifferentValues(newFirstName, aPersonal.getFirstName()))
-      {
-        aPersonal.setFirstName(newFirstName);
-        isModified = true;
-      }
-
-      var newFirstNameNonPublic = req.firstNameNonPublic;
-      if (isDifferentValues(newFirstNameNonPublic, aPersonal.getFirstNameNonPublic()))
-      {
-        aPersonal.setFirstNameNonPublic(newFirstNameNonPublic);
-        isModified = true;
-      }
-
-      var newMiddleName = req.middleName;
-      if (isDifferentValues(newMiddleName, aPersonal.getMiddleName()))
-      {
-        aPersonal.setMiddleName(newMiddleName);
-        isModified = true;
-      }
-
-      var newMiddleNameNonPublic = req.middleNameNonPublic;
-      if (isDifferentValues(newMiddleNameNonPublic, aPersonal.getMiddleNameNonPublic()))
-      {
-        aPersonal.setMiddleNameNonPublic(newMiddleNameNonPublic);
-        isModified = true;
-      }
-
-      var newLastName = req.lastName;
-      if (isDifferentValues(newLastName, aPersonal.getLastName()))
-      {
-        aPersonal.setLastName(newLastName);
-        isModified = true;
-      }
-
-      var newLastNameNonPublic = req.lastNameNonPublic;
-      if (isDifferentValues(newLastNameNonPublic, aPersonal.getLastNameNonPublic()))
-      {
-        aPersonal.setLastNameNonPublic(newLastNameNonPublic);
-        isModified = true;
-      }
-
-      if (req.gender != null
-              && canUseGender(req.gender, errorCodes))
-      {
-        var newGender = reqPrepareGender(req.gender);
-        if (isDifferentValues(newGender, aPersonal.getGender()))
+        var newNickNameNonPublic = (Boolean) req.get("nickNameNonPublic");
+        if (isDifferentValues(newNickNameNonPublic, aPersonal.getNickNameNonPublic()))
         {
-          aPersonal.setGender(newGender);
+          aPersonal.setNickNameNonPublic(newNickNameNonPublic);
           isModified = true;
         }
       }
 
-      var newGenderNonPublic = req.genderNonPublic;
-      if (isDifferentValues(newGenderNonPublic, aPersonal.getGenderNonPublic()))
+      if (req.containsKey("firstName"))
       {
-        aPersonal.setGenderNonPublic(newGenderNonPublic);
-        isModified = true;
-      }
-
-      if (req.dateOfBirth != null
-              && canUseDateOfBirth(req.dateOfBirth, errorCodes))
-      {
-        var newDateOfBirth = reqPrepareDateOfBirth(req.dateOfBirth);
-        if (isDifferentValues(newDateOfBirth, aPersonal.getDateOfBirth()))
+        var newFirstName = (String) req.get("firstName");
+        if (!isObjEquals(newFirstName, aPersonal.getFirstName()))
         {
-          aPersonal.setDateOfBirth(newDateOfBirth);
+          aPersonal.setFirstName(newFirstName);
           isModified = true;
         }
       }
 
-      var newDateOfBirthNonPublic = req.dateOfBirthNonPublic;
-      if (isDifferentValues(newDateOfBirthNonPublic, aPersonal.getDateOfBirthNonPublic()))
+      if (req.containsKey("firstNameNonPublic"))
       {
-        aPersonal.setDateOfBirthNonPublic(newDateOfBirthNonPublic);
-        isModified = true;
+        var newFirstNameNonPublic = (Boolean) req.get("firstNameNonPublic");
+        if (isDifferentValues(newFirstNameNonPublic, aPersonal.getFirstNameNonPublic()))
+        {
+          aPersonal.setFirstNameNonPublic(newFirstNameNonPublic);
+          isModified = true;
+        }
       }
 
-      var newCountry = req.country;
-      if (errorCodes.size() == 0
-              && canUseCountry(newCountry, errorCodes)
-              && isDifferentValues(newCountry, aPersonal.getCountry()))
+      if (req.containsKey("middleName"))
       {
-        aPersonal.setCountry(newCountry);
-        isModified = true;
+        var newMiddleName = (String) req.get("middleName");
+        if (!isObjEquals(newMiddleName, aPersonal.getMiddleName()))
+        {
+          aPersonal.setMiddleName(newMiddleName);
+          isModified = true;
+        }
       }
 
-      var newCountryNonPublic = req.countryNonPublic;
-      if (isDifferentValues(newCountryNonPublic, aPersonal.getCountryNonPublic()))
+      if (req.containsKey("middleNameNonPublic"))
       {
-        aPersonal.setCountryNonPublic(newCountryNonPublic);
-        isModified = true;
+        var newMiddleNameNonPublic = (Boolean) req.get("middleNameNonPublic");
+        if (isDifferentValues(newMiddleNameNonPublic, aPersonal.getMiddleNameNonPublic()))
+        {
+          aPersonal.setMiddleNameNonPublic(newMiddleNameNonPublic);
+          isModified = true;
+        }
       }
 
-      var newCity = req.city;
-      if (isDifferentValues(newCity, aPersonal.getCity()))
+      if (req.containsKey("lastName"))
       {
-        aPersonal.setCity(newCity);
-        isModified = true;
+        var newLastName = (String) req.get("lastName");
+        if (!isObjEquals(newLastName, aPersonal.getLastName()))
+        {
+          aPersonal.setLastName(newLastName);
+          isModified = true;
+        }
+      }
+
+      if (req.containsKey("lastNameNonPublic"))
+      {
+        var newLastNameNonPublic = (Boolean) req.get("lastNameNonPublic");
+        if (isDifferentValues(newLastNameNonPublic, aPersonal.getLastNameNonPublic()))
+        {
+          aPersonal.setLastNameNonPublic(newLastNameNonPublic);
+          isModified = true;
+        }
+      }
+
+      if (req.containsKey("gender"))
+      {
+        var newGenderStr = (String) req.get("gender");
+        if (canUseGender(newGenderStr, errorCodes))
+        {
+          var newGender = reqPrepareGender(newGenderStr);
+          if (!isObjEquals(newGender, aPersonal.getGender()))
+          {
+            aPersonal.setGender(newGender);
+            isModified = true;
+          }
+        }
+      }
+
+      if (req.containsKey("genderNonPublic"))
+      {
+        var newGenderNonPublic = (Boolean) req.get("genderNonPublic");
+        if (isDifferentValues(newGenderNonPublic, aPersonal.getGenderNonPublic()))
+        {
+          aPersonal.setGenderNonPublic(newGenderNonPublic);
+          isModified = true;
+        }
+      }
+
+      if (req.containsKey("dateOfBirth"))
+      {
+        var newDateOfBirthStr = (String) req.get("dateOfBirth");
+        if (canUseDateOfBirth(newDateOfBirthStr, errorCodes))
+        {
+          var newDateOfBirth = reqPrepareDateOfBirth(newDateOfBirthStr);
+          if (!isObjEquals(newDateOfBirth, aPersonal.getDateOfBirth()))
+          {
+            aPersonal.setDateOfBirth(newDateOfBirth);
+            isModified = true;
+          }
+        }
+      }
+
+      if (req.containsKey("dateOfBirthNonPublic"))
+      {
+        var newDateOfBirthNonPublic = (Boolean) req.get("dateOfBirthNonPublic");
+        if (isDifferentValues(newDateOfBirthNonPublic, aPersonal.getDateOfBirthNonPublic()))
+        {
+          aPersonal.setDateOfBirthNonPublic(newDateOfBirthNonPublic);
+          isModified = true;
+        }
+      }
+
+      if (errorCodes.size() == 0 && req.containsKey("country"))
+      {
+        var newCountry = (String) req.get("country");
+        if (canUseCountry(newCountry, errorCodes)
+                && !isObjEquals(newCountry, aPersonal.getCountry()))
+        {
+          aPersonal.setCountry(newCountry);
+          isModified = true;
+        }
+      }
+
+      if (req.containsKey("countryNonPublic"))
+      {
+        var newCountryNonPublic = (Boolean) req.get("countryNonPublic");
+        if (isDifferentValues(newCountryNonPublic, aPersonal.getCountryNonPublic()))
+        {
+          aPersonal.setCountryNonPublic(newCountryNonPublic);
+          isModified = true;
+        }
+      }
+
+      if (req.containsKey("city"))
+      {
+        var newCity = (String) req.get("city");
+        if (!isObjEquals(newCity, aPersonal.getCity()))
+        {
+          aPersonal.setCity(newCity);
+          isModified = true;
+        }
       }
 
       var newCityNonPublic = req.cityNonPublic;
@@ -969,6 +1010,22 @@ public class NevisControllerV1
   private static boolean isDifferentValues(Object newValue, Object oldValue)
   {
     return newValue != null && !newValue.equals(oldValue);
+  }
+
+  private static boolean isObjEquals(Object o1, Object o2)
+  {
+    if (o1 == null && o2 == null) // (null,null)
+    {
+      return true;
+    }
+    else if (o1 == null || o2 == null) // (null,obj)  OR  (obj,null)
+    {
+      return false;
+    }
+    else // (obj,obj)
+    {
+      return o1.equals(o2);
+    }
   }
 
   private static NevisGender reqPrepareGender(String gender)
@@ -1587,227 +1644,5 @@ class ReqNickNameChange
   public void setCurpass(String curpass)
   {
     this.curpass = curpass;
-  }
-}
-
-class ReqUpdateAccountPersonal
-{
-  Boolean nickNameNonPublic;
-
-  String firstName;
-  Boolean firstNameNonPublic;
-
-  String middleName;
-  Boolean middleNameNonPublic;
-
-  String lastName;
-  Boolean lastNameNonPublic;
-
-  String gender;
-  Boolean genderNonPublic;
-
-  String dateOfBirth;
-  Boolean dateOfBirthNonPublic;
-
-  String country;
-  Boolean countryNonPublic;
-
-  String city;
-  Boolean cityNonPublic;
-
-  String company;
-  Boolean companyNonPublic;
-
-  String positionHeld;
-  Boolean positionHeldNonPublic;
-
-  public Boolean getNickNameNonPublic()
-  {
-    return nickNameNonPublic;
-  }
-
-  public void setNickNameNonPublic(Boolean nickNameNonPublic)
-  {
-    this.nickNameNonPublic = nickNameNonPublic;
-  }
-
-  public String getFirstName()
-  {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName)
-  {
-    this.firstName = firstName;
-  }
-
-  public Boolean getFirstNameNonPublic()
-  {
-    return firstNameNonPublic;
-  }
-
-  public void setFirstNameNonPublic(Boolean firstNameNonPublic)
-  {
-    this.firstNameNonPublic = firstNameNonPublic;
-  }
-
-  public String getMiddleName()
-  {
-    return middleName;
-  }
-
-  public void setMiddleName(String middleName)
-  {
-    this.middleName = middleName;
-  }
-
-  public Boolean getMiddleNameNonPublic()
-  {
-    return middleNameNonPublic;
-  }
-
-  public void setMiddleNameNonPublic(Boolean middleNameNonPublic)
-  {
-    this.middleNameNonPublic = middleNameNonPublic;
-  }
-
-  public String getLastName()
-  {
-    return lastName;
-  }
-
-  public void setLastName(String lastName)
-  {
-    this.lastName = lastName;
-  }
-
-  public Boolean getLastNameNonPublic()
-  {
-    return lastNameNonPublic;
-  }
-
-  public void setLastNameNonPublic(Boolean lastNameNonPublic)
-  {
-    this.lastNameNonPublic = lastNameNonPublic;
-  }
-
-  public String getGender()
-  {
-    return gender;
-  }
-
-  public void setGender(String gender)
-  {
-    this.gender = gender;
-  }
-
-  public Boolean getGenderNonPublic()
-  {
-    return genderNonPublic;
-  }
-
-  public void setGenderNonPublic(Boolean genderNonPublic)
-  {
-    this.genderNonPublic = genderNonPublic;
-  }
-
-  public String getDateOfBirth()
-  {
-    return dateOfBirth;
-  }
-
-  public void setDateOfBirth(String dateOfBirth)
-  {
-    this.dateOfBirth = dateOfBirth;
-  }
-
-  public Boolean getDateOfBirthNonPublic()
-  {
-    return dateOfBirthNonPublic;
-  }
-
-  public void setDateOfBirthNonPublic(Boolean dateOfBirthNonPublic)
-  {
-    this.dateOfBirthNonPublic = dateOfBirthNonPublic;
-  }
-
-  public String getCountry()
-  {
-    return country;
-  }
-
-  public void setCountry(String country)
-  {
-    this.country = country;
-  }
-
-  public Boolean getCountryNonPublic()
-  {
-    return countryNonPublic;
-  }
-
-  public void setCountryNonPublic(Boolean countryNonPublic)
-  {
-    this.countryNonPublic = countryNonPublic;
-  }
-
-  public String getCity()
-  {
-    return city;
-  }
-
-  public void setCity(String city)
-  {
-    this.city = city;
-  }
-
-  public Boolean getCityNonPublic()
-  {
-    return cityNonPublic;
-  }
-
-  public void setCityNonPublic(Boolean cityNonPublic)
-  {
-    this.cityNonPublic = cityNonPublic;
-  }
-
-  public String getCompany()
-  {
-    return company;
-  }
-
-  public void setCompany(String company)
-  {
-    this.company = company;
-  }
-
-  public Boolean getCompanyNonPublic()
-  {
-    return companyNonPublic;
-  }
-
-  public void setCompanyNonPublic(Boolean companyNonPublic)
-  {
-    this.companyNonPublic = companyNonPublic;
-  }
-
-  public String getPositionHeld()
-  {
-    return positionHeld;
-  }
-
-  public void setPositionHeld(String positionHeld)
-  {
-    this.positionHeld = positionHeld;
-  }
-
-  public Boolean getPositionHeldNonPublic()
-  {
-    return positionHeldNonPublic;
-  }
-
-  public void setPositionHeldNonPublic(Boolean positionHeldNonPublic)
-  {
-    this.positionHeldNonPublic = positionHeldNonPublic;
   }
 }
