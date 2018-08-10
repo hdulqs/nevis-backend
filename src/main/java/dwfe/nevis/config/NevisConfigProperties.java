@@ -29,6 +29,9 @@ public class NevisConfigProperties implements InitializingBean
   private GoogleCaptcha googleCaptcha;
 
   @NotNull
+  private ThirdPartyAuth thirdPartyAuth;
+
+  @NotNull
   private Frontend frontend = new Frontend();
 
   @NotNull
@@ -63,6 +66,7 @@ public class NevisConfigProperties implements InitializingBean
     private String createAccount = "/create-account";
     private String id = "/id/{id}";
     private String deleteAccount = "/delete-account";
+    private String thirdPartyAuth = "/third-party-auth";
 
     // Account.Access
     private String getAccountAccess = "/get-account-access";
@@ -353,6 +357,22 @@ public class NevisConfigProperties implements InitializingBean
     }
   }
 
+  public static class ThirdPartyAuth
+  {
+    @NotBlank
+    private String googleClientId;
+
+    public String getGoogleClientId()
+    {
+      return googleClientId;
+    }
+
+    public void setGoogleClientId(String googleClientId)
+    {
+      this.googleClientId = googleClientId;
+    }
+  }
+
   public static class Frontend
   {
     private String host = "http://localhost";
@@ -565,6 +585,16 @@ public class NevisConfigProperties implements InitializingBean
     this.googleCaptcha = googleCaptcha;
   }
 
+  public ThirdPartyAuth getThirdPartyAuth()
+  {
+    return thirdPartyAuth;
+  }
+
+  public void setThirdPartyAuth(ThirdPartyAuth thirdPartyAuth)
+  {
+    this.thirdPartyAuth = thirdPartyAuth;
+  }
+
   public Frontend getFrontend()
   {
     return frontend;
@@ -634,6 +664,7 @@ public class NevisConfigProperties implements InitializingBean
                     "|      %s%n" +
                     "|      %s%n" +
                     "|      %s%n" +
+                    "|      %s%n" +
                     "|                                                     %n" +
                     "|   Account.Access:                                   %n" +
                     "|      %s%n" +
@@ -682,6 +713,7 @@ public class NevisConfigProperties implements InitializingBean
             resource.createAccount,
             resource.id,
             resource.deleteAccount,
+            resource.thirdPartyAuth,
 
             // Account.Access
             resource.getAccountAccess,

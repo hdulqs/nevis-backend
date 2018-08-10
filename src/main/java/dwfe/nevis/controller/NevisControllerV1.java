@@ -1,5 +1,10 @@
 package dwfe.nevis.controller;
 
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import dwfe.nevis.config.NevisConfigProperties;
 import dwfe.nevis.db.account.access.NevisAccountAccess;
 import dwfe.nevis.db.account.access.NevisAccountAccessService;
@@ -27,6 +32,8 @@ import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -312,6 +319,47 @@ public class NevisControllerV1
         accessService.delete(aAccess);
       else errorCodes.add("wrong-" + req.curpassFieldName);
     }
+    return getResponse(errorCodes);
+  }
+
+  @PostMapping("#{nevisConfigProperties.resource.thirdPartyAuth}")
+  public String thirdPartyAuth(@RequestBody ReqThirdPartyAuth req)
+  {
+    var errorCodes = new ArrayList<String>();
+
+    if (isDefaultPreCheckOk(req.identityCheckData, req.identityFieldName, errorCodes)
+            && isDefaultPreCheckOk(req.thirdParty, req.thirdPartyFieldName, errorCodes)
+            && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes))
+    {
+
+      GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(UrlFetchTransport.getDefaultInstance(), new JacksonFactory())
+              // Specify the CLIENT_ID of the app that accesses the backend:
+              .setAudience(Collections.singletonList(prop.getThirdPartyAuth().getGoogleClientId()))
+              .build();
+
+      try
+      {
+        GoogleIdToken idToken = verifier.verify(req.identityCheckData);
+
+        if (idToken != null)
+        {
+          Payload payload = idToken.getPayload();
+
+          String email = payload.getEmail();
+          String firstName = (String) payload.get("given_name");
+          String lastName = (String) payload.get("family_name");
+        }
+        else
+        {
+          System.out.println("Invalid ID token.");
+        }
+      }
+      catch (GeneralSecurityException | IOException e)
+      {
+        e.printStackTrace();
+      }
+    }
+
     return getResponse(errorCodes);
   }
 
@@ -1454,6 +1502,70 @@ class ReqDeleteAccount
   public void setCurpass(String curpass)
   {
     this.curpass = curpass;
+  }
+}
+
+class ReqThirdPartyAuth
+{
+  String identityCheckData;
+  String thirdParty;
+  String email;
+
+  String firstName;
+  String lastName;
+
+  String identityFieldName = "identity";
+  String thirdPartyFieldName = "third-party";
+  String emailFieldName = "email";
+
+  public String getIdentityCheckData()
+  {
+    return identityCheckData;
+  }
+
+  public void setIdentityCheckData(String identityCheckData)
+  {
+    this.identityCheckData = identityCheckData;
+  }
+
+  public String getThirdParty()
+  {
+    return thirdParty;
+  }
+
+  public void setThirdParty(String thirdParty)
+  {
+    this.thirdParty = thirdParty;
+  }
+
+  public String getEmail()
+  {
+    return email;
+  }
+
+  public void setEmail(String email)
+  {
+    this.email = email;
+  }
+
+  public String getFirstName()
+  {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName)
+  {
+    this.firstName = firstName;
+  }
+
+  public String getLastName()
+  {
+    return lastName;
+  }
+
+  public void setLastName(String lastName)
+  {
+    this.lastName = lastName;
   }
 }
 
