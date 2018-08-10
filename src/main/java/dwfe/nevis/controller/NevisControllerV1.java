@@ -1,10 +1,5 @@
 package dwfe.nevis.controller;
 
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import dwfe.nevis.config.NevisConfigProperties;
 import dwfe.nevis.db.account.access.NevisAccountAccess;
 import dwfe.nevis.db.account.access.NevisAccountAccessService;
@@ -32,8 +27,6 @@ import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -135,8 +128,9 @@ public class NevisControllerV1
 
     if (isDefaultPreCheckOk(req.googleResponse, "google-response", errorCodes))
     {
-      var url = String.format(prop.getGoogleCaptcha().getSiteVerifyUrlTemplate(),
-              prop.getGoogleCaptcha().getSecretKey(), req.googleResponse);
+      // https://developers.google.com/recaptcha/docs/verify#api-request
+      var url = String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s",
+              prop.getCaptcha().getGoogleSecretKey(), req.googleResponse);
 
       FutureTask<ResponseEntity<String>> exchange =
               new FutureTask<>(() -> restTemplate.exchange(url, HttpMethod.POST, null, String.class));
@@ -332,32 +326,11 @@ public class NevisControllerV1
             && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes))
     {
 
-      GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(UrlFetchTransport.getDefaultInstance(), new JacksonFactory())
-              // Specify the CLIENT_ID of the app that accesses the backend:
-              .setAudience(Collections.singletonList(prop.getThirdPartyAuth().getGoogleClientId()))
-              .build();
+      // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
+      String url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
+      ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, null, String.class);
+      System.out.println(exchange.getBody());
 
-      try
-      {
-        GoogleIdToken idToken = verifier.verify(req.identityCheckData);
-
-        if (idToken != null)
-        {
-          Payload payload = idToken.getPayload();
-
-          String email = payload.getEmail();
-          String firstName = (String) payload.get("given_name");
-          String lastName = (String) payload.get("family_name");
-        }
-        else
-        {
-          System.out.println("Invalid ID token.");
-        }
-      }
-      catch (GeneralSecurityException | IOException e)
-      {
-        e.printStackTrace();
-      }
     }
 
     return getResponse(errorCodes);
@@ -1511,9 +1484,6 @@ class ReqThirdPartyAuth
   String thirdParty;
   String email;
 
-  String firstName;
-  String lastName;
-
   String identityFieldName = "identity";
   String thirdPartyFieldName = "third-party";
   String emailFieldName = "email";
@@ -1546,26 +1516,6 @@ class ReqThirdPartyAuth
   public void setEmail(String email)
   {
     this.email = email;
-  }
-
-  public String getFirstName()
-  {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName)
-  {
-    this.firstName = firstName;
-  }
-
-  public String getLastName()
-  {
-    return lastName;
-  }
-
-  public void setLastName(String lastName)
-  {
-    this.lastName = lastName;
   }
 }
 

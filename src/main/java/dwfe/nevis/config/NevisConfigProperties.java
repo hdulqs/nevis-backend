@@ -26,7 +26,7 @@ public class NevisConfigProperties implements InitializingBean
 
   private Resource resource = new Resource();
 
-  private GoogleCaptcha googleCaptcha;
+  private Captcha captcha;
 
   @NotNull
   private ThirdPartyAuth thirdPartyAuth;
@@ -173,6 +173,15 @@ public class NevisConfigProperties implements InitializingBean
       this.deleteAccount = deleteAccount;
     }
 
+    public String getThirdPartyAuth()
+    {
+      return thirdPartyAuth;
+    }
+
+    public void setThirdPartyAuth(String thirdPartyAuth)
+    {
+      this.thirdPartyAuth = thirdPartyAuth;
+    }
 
     public String getGetAccountAccess()
     {
@@ -328,32 +337,19 @@ public class NevisConfigProperties implements InitializingBean
     }
   }
 
-  public static class GoogleCaptcha
+  public static class Captcha
   {
     @NotBlank
-    private String secretKey;
+    private String googleSecretKey;
 
-    @NotBlank
-    private String siteVerifyUrlTemplate;
-
-    public String getSecretKey()
+    public String getGoogleSecretKey()
     {
-      return secretKey;
+      return googleSecretKey;
     }
 
-    public void setSecretKey(String secretKey)
+    public void setGoogleSecretKey(String googleSecretKey)
     {
-      this.secretKey = secretKey;
-    }
-
-    public String getSiteVerifyUrlTemplate()
-    {
-      return siteVerifyUrlTemplate;
-    }
-
-    public void setSiteVerifyUrlTemplate(String siteVerifyUrlTemplate)
-    {
-      this.siteVerifyUrlTemplate = siteVerifyUrlTemplate;
+      this.googleSecretKey = googleSecretKey;
     }
   }
 
@@ -575,14 +571,14 @@ public class NevisConfigProperties implements InitializingBean
     this.resource = resource;
   }
 
-  public GoogleCaptcha getGoogleCaptcha()
+  public Captcha getCaptcha()
   {
-    return googleCaptcha;
+    return captcha;
   }
 
-  public void setGoogleCaptcha(GoogleCaptcha googleCaptcha)
+  public void setCaptcha(Captcha captcha)
   {
-    this.googleCaptcha = googleCaptcha;
+    this.captcha = captcha;
   }
 
   public ThirdPartyAuth getThirdPartyAuth()

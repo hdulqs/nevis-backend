@@ -84,19 +84,6 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
-
-        <!-- Third-party Auth -->
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.24.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client-appengine</artifactId>
-            <version>1.24.1</version>
-        </dependency>
-
         <!--Now not work with Java 10-->
         <!--<dependency>-->
         <!--<groupId>org.projectlombok</groupId>-->
