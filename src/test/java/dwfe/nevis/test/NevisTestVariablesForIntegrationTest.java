@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static dwfe.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.nevis.util.NevisUtil.isStringBcrypted;
 
 public class NevisTestVariablesForIntegrationTest
@@ -149,7 +150,8 @@ public class NevisTestVariablesForIntegrationTest
 
             NevisTestChecker.of(true, 200, Map.of(
                     "email", Account6_EMAIL,
-                    "password", Account6_Pass)),
+                    "password", Account6_Pass,
+                    "thirdParty", GOOGLE)),
 
             NevisTestChecker.of(true, 200, Map.of(
                     "email", Account7_EMAIL,
@@ -219,18 +221,37 @@ public class NevisTestVariablesForIntegrationTest
   // Account.Access
   //
 
-  public static final List<NevisTestChecker> checkers_for_getAccountAccess = List.of(
-          NevisTestChecker.of(true, 200, Map.of(), Map.of(
-                  "id", Integer.parseInt(Account1_ID),
-                  "authorities", List.of("USER", "ADMIN"),
-                  "accountNonExpired", true,
-                  "credentialsNonExpired", true,
-                  "accountNonLocked", true,
-                  "enabled", true,
-                  "createdOn", "date",
-                  "updatedOn", "date"
-          ))
+  public static final List<NevisTestChecker> checkers_for_getAccountAccess1 = List.of(
+          NevisTestChecker.of(true, 200, Map.of(), JsonParserFactory.getJsonParser().parseMap(
+                  "{\"id\":" + Integer.parseInt(Account1_ID) + "," +
+                          "\"authorities\":[\"USER\", \"ADMIN\"]," +
+                          "\"thirdParty\":null," +
+                          "\"accountNonExpired\":true," +
+                          "\"credentialsNonExpired\":true," +
+                          "\"credentialsNonExpired\":true," +
+                          "\"accountNonLocked\":true," +
+                          "\"enabled\":true," +
+                          "\"createdOn\":\"date\"," +
+                          "\"updatedOn\":\"date\"" +
+                          "}"))
   );
+
+  public static List<NevisTestChecker> checkers_for_getAccountAccess2(Long id)
+  {
+    return List.of(
+            NevisTestChecker.of(true, 200, Map.of(), Map.of(
+                    "id", Integer.parseInt(String.valueOf(id)),
+                    "authorities", List.of("USER"),
+                    "thirdParty", "GOOGLE",
+                    "accountNonExpired", true,
+                    "credentialsNonExpired", true,
+                    "accountNonLocked", true,
+                    "enabled", true,
+                    "createdOn", "date",
+                    "updatedOn", "date"
+            ))
+    );
+  }
 
   public static final List<NevisTestChecker> checkers_for_passwordChange = List.of(
           NevisTestChecker.of(false, 200, Map.of(), "missing-curpass"),

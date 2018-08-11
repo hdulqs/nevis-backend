@@ -3,6 +3,7 @@ package dwfe.nevis;
 import dwfe.nevis.config.NevisConfigProperties;
 import dwfe.nevis.db.account.access.NevisAccountAccess;
 import dwfe.nevis.db.account.access.NevisAccountAccessService;
+import dwfe.nevis.db.account.access.NevisAccountThirdParty;
 import dwfe.nevis.db.account.access.NevisAccountUsernameType;
 import dwfe.nevis.db.account.email.NevisAccountEmail;
 import dwfe.nevis.db.account.email.NevisAccountEmailService;
@@ -35,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static dwfe.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.nevis.db.account.access.NevisAccountUsernameType.*;
 import static dwfe.nevis.db.mailing.NevisMailingType.*;
 import static dwfe.nevis.db.other.gender.NevisGender.M;
@@ -183,12 +185,12 @@ public class NevisAppTest
     //  - Account3 - EMAIL, password was not passed
     //  - Account4 - NICKNAME, password was passed
     //  - Account5 - PHONE, already encoded password was passed
-    //  - Account6 - EMAIL, password was passed
+    //  - Account6 - EMAIL, password was passed + Third-party
     //  - Account7 - EMAIL, values for check restrictions
 
 
     // Account3
-    var aAccess1 = checkAccountAccessAfterCreateAccount(Account3_EMAIL, EMAIL);
+    var aAccess1 = checkAccountAccessAfterCreateAccount(Account3_EMAIL, EMAIL, null);
     var id = aAccess1.getId();
     var aEmail = getAccountEmailById(id, true);
     checkAccountEmail(aEmail, Account3_EMAIL, true, true);
@@ -212,7 +214,7 @@ public class NevisAppTest
 
 
     // Account4
-    var aAccess2 = checkAccountAccessAfterCreateAccount(Account4_NICKNAME, NICKNAME);
+    var aAccess2 = checkAccountAccessAfterCreateAccount(Account4_NICKNAME, NICKNAME, null);
     id = aAccess2.getId();
     Account4_ID = id;
     getAccountEmailById(id, false);
@@ -234,7 +236,7 @@ public class NevisAppTest
 
 
     // Account5
-    var aAccess3 = checkAccountAccessAfterCreateAccount(Account5_PHONE, PHONE);
+    var aAccess3 = checkAccountAccessAfterCreateAccount(Account5_PHONE, PHONE, null);
     id = aAccess3.getId();
     getAccountEmailById(id, false);
     var aPhone = getAccountPhoneById(id, true);
@@ -256,7 +258,7 @@ public class NevisAppTest
 
 
     // Account6
-    var aAccess4 = checkAccountAccessAfterCreateAccount(Account6_EMAIL, EMAIL);
+    var aAccess4 = checkAccountAccessAfterCreateAccount(Account6_EMAIL, EMAIL, GOOGLE);
     id = aAccess4.getId();
     Account6_ID = id;
     aEmail = getAccountEmailById(id, true);
@@ -279,7 +281,7 @@ public class NevisAppTest
 
 
     // Account7
-    var aAccess5 = checkAccountAccessAfterCreateAccount(Account7_EMAIL, EMAIL);
+    var aAccess5 = checkAccountAccessAfterCreateAccount(Account7_EMAIL, EMAIL, null);
     id = aAccess5.getId();
     Account7_ID = id;
     aEmail = getAccountEmailById(id, true);
@@ -348,7 +350,12 @@ public class NevisAppTest
   {
     logHead("Get Account Access");
 
-    util.check(GET, prop.getResource().getGetAccountAccess(), auth.getADMIN().access_token, checkers_for_getAccountAccess);
+    var resource = prop.getResource().getGetAccountAccess();
+
+    util.check(GET, resource, auth.getADMIN().access_token, checkers_for_getAccountAccess1);
+
+    var auth1 = auth.of(USER, Account6_EMAIL, EMAIL, Account6_Pass, client.getClientTrusted());
+    util.check(GET, resource, auth1.access_token, checkers_for_getAccountAccess2(Account6_ID));
   }
 
   @Test
@@ -806,7 +813,7 @@ public class NevisAppTest
     mailingService.deleteAll();
   }
 
-  private NevisAccountAccess checkAccountAccessAfterCreateAccount(String username, NevisAccountUsernameType usernameType)
+  private NevisAccountAccess checkAccountAccessAfterCreateAccount(String username, NevisAccountUsernameType usernameType, NevisAccountThirdParty thirdParty)
   {
     var aAccess = getAccessByUsername(username, usernameType);
 
@@ -834,6 +841,8 @@ public class NevisAppTest
     var authorities = aAccess.getAuthorities();
     assertEquals(1, authorities.size());
     assertEquals("USER", authorities.iterator().next().getAuthority());
+
+    assertEquals(thirdParty, aAccess.getThirdParty());
 
     assertTrue(aAccess.isAccountNonExpired());
     assertTrue(aAccess.isCredentialsNonExpired());

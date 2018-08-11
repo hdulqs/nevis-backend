@@ -18,6 +18,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE nevis_account_access (
   id                      BIGINT(20)                           NOT NULL   AUTO_INCREMENT,
   password                VARCHAR(100)                         NOT NULL,
+  third_party             VARCHAR(20),
   account_non_expired     TINYINT(1)                           NOT NULL   DEFAULT '1',
   credentials_non_expired TINYINT(1)                           NOT NULL   DEFAULT '1',
   account_non_locked      TINYINT(1)                           NOT NULL   DEFAULT '1',

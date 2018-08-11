@@ -301,13 +301,23 @@ public class NevisUtil
     return result;
   }
 
+  public static String nullableValueToStrResp(String field, Object value)
+  {
+    return value == null
+            ? "\"" + field + "\":null"
+            : "\"" + field + "\":\"" + value + "\"";
+  }
 
   public static boolean isDefaultPreCheckOk(String value, String name, List<String> errorCodes)
   {
+    return isNotNullPreCheckOk(value, name, errorCodes)
+            && isEmptyPreCheckOk(value, name, errorCodes);
+  }
+
+  public static boolean isNotNullPreCheckOk(Object value, String name, List<String> errorCodes)
+  {
     if (value == null)
       errorCodes.add("missing-" + name);
-    else
-      return isEmptyPreCheckOk(value, name, errorCodes);
     return errorCodes.size() == 0;
   }
 

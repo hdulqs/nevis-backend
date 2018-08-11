@@ -3,6 +3,7 @@ package dwfe.nevis.controller;
 import dwfe.nevis.config.NevisConfigProperties;
 import dwfe.nevis.db.account.access.NevisAccountAccess;
 import dwfe.nevis.db.account.access.NevisAccountAccessService;
+import dwfe.nevis.db.account.access.NevisAccountThirdParty;
 import dwfe.nevis.db.account.access.NevisAccountUsernameType;
 import dwfe.nevis.db.account.authority.NevisAuthority;
 import dwfe.nevis.db.account.email.NevisAccountEmail;
@@ -18,7 +19,6 @@ import dwfe.nevis.db.other.gender.NevisGender;
 import dwfe.nevis.util.NevisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -37,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
+import static dwfe.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.nevis.db.account.access.NevisAccountUsernameType.*;
 import static dwfe.nevis.db.mailing.NevisMailingType.*;
 import static dwfe.nevis.util.NevisUtil.*;
@@ -209,6 +210,7 @@ public class NevisControllerV1
       var aAccess = new NevisAccountAccess();
       aAccess.setPassword(preparePasswordForDB(password));
       aAccess.setAuthorities(Set.of(NevisAuthority.of("USER")));
+      aAccess.setThirdParty(req.thirdParty);
       aAccess.setAccountNonExpired(true);
       aAccess.setCredentialsNonExpired(true);
       aAccess.setAccountNonLocked(true);
@@ -330,11 +332,10 @@ public class NevisControllerV1
     var data = "";
 
     if (isDefaultPreCheckOk(req.identityCheckData, req.identityFieldName, errorCodes)
-            && isDefaultPreCheckOk(req.thirdParty, req.thirdPartyFieldName, errorCodes)
+            && isNotNullPreCheckOk(req.thirdParty, req.thirdPartyFieldName, errorCodes)
             && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes))
     {
-
-      if (req.thirdParty.equals("google"))
+      if (GOOGLE == req.thirdParty)
       {
         // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
         String url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
@@ -353,39 +354,45 @@ public class NevisControllerV1
             {
               var email = (String) map.get("email");
 
-              var aEmailOpt = emailService.findByValue(email);
-              if (aEmailOpt.isPresent())
+              if (email.equals(req.email))
               {
-                var aAccess = accessService.findById(aEmailOpt.get().getAccountId()).get();
-                aAccess.setPassword(preparePasswordForDB(password));
-                accessService.save(aAccess);
+                var aEmailOpt = emailService.findByValue(email);
+                if (aEmailOpt.isPresent())
+                {
+                  var aAccess = accessService.findById(aEmailOpt.get().getAccountId()).get();
+                  aAccess.setPassword(preparePasswordForDB(password));
+                  accessService.save(aAccess);
+                }
+                else
+                {
+                  var reqCreateAcc = new ReqCreateAccount();
+                  reqCreateAcc.setPassword(password);
+                  reqCreateAcc.setEmail(email);
+                  reqCreateAcc.setFirstName((String) map.get("given_name"));
+                  reqCreateAcc.setLastName((String) map.get("family_name"));
+                  reqCreateAcc.setThirdParty(GOOGLE);
+                  createAccount(reqCreateAcc);
+                }
+
+                var reqSignIn = RequestEntity
+                        .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .build();
+                var rt = restTemplateBuilder.basicAuthorization(
+                        prop.getOauth2ClientTrusted().getId(),
+                        prop.getOauth2ClientTrusted().getPassword())
+                        .build();
+                var resp = rt.exchange(reqSignIn, String.class);
+
+                if (resp.getStatusCodeValue() == 200)
+                {
+                  data = resp.getBody();
+                }
+                else
+                  errorCodes.add("error-google-sign-in");
               }
               else
-              {
-                var reqCreateAcc = new ReqCreateAccount();
-                reqCreateAcc.setPassword(password);
-                reqCreateAcc.setEmail(email);
-                reqCreateAcc.setFirstName((String) map.get("given_name"));
-                reqCreateAcc.setLastName((String) map.get("family_name"));
-                createAccount(reqCreateAcc);
-              }
-
-              var reqSignIn = RequestEntity
-                      .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
-                      .contentType(MediaType.APPLICATION_JSON_UTF8)
-                      .build();
-              var rt = restTemplateBuilder.basicAuthorization(
-                      prop.getOauth2ClientTrusted().getId(),
-                      prop.getOauth2ClientTrusted().getPassword())
-                      .build();
-              var resp = rt.exchange(reqSignIn, String.class);
-
-              if (resp.getStatusCodeValue() == 200)
-              {
-                data = resp.getBody();
-              }
-              else
-                errorCodes.add("error-google-sign-in");
+                errorCodes.add("fake-detected-google-sign-in");
             }
             else
               errorCodes.add("fake-detected-google-sign-in");
@@ -1181,13 +1188,6 @@ public class NevisControllerV1
     return String.format("{\"success\": false, \"error-codes\": %s}", getJsonFromObj(errorCodes));
   }
 
-  private static String nullableValueToResp(String field, Object value)
-  {
-    return value == null
-            ? "\"" + field + "\":null"
-            : "\"" + field + "\":\"" + value + "\"";
-  }
-
   private static String respPrepareAccountAccess(NevisAccountAccess aAccess, boolean onPublic)
   {
     var list = new ArrayList<String>();
@@ -1199,6 +1199,7 @@ public class NevisControllerV1
     if (!onPublic)
     {
       list.add("\"authorities\":" + getAuthorities(aAccess.getAuthorities(), true));
+      list.add(nullableValueToStrResp("thirdParty", aAccess.getThirdParty()));
       list.add("\"accountNonExpired\":" + aAccess.isAccountNonExpired());
       list.add("\"credentialsNonExpired\":" + aAccess.isCredentialsNonExpired());
       list.add("\"accountNonLocked\":" + aAccess.isAccountNonLocked());
@@ -1255,16 +1256,16 @@ public class NevisControllerV1
   {
     var list = new ArrayList<String>();
 
-    var nickName = nullableValueToResp("nickName", aPersonal.getNickName());
-    var firstName = nullableValueToResp("firstName", aPersonal.getFirstName());
-    var middleName = nullableValueToResp("middleName", aPersonal.getMiddleName());
-    var lastName = nullableValueToResp("lastName", aPersonal.getLastName());
-    var gender = nullableValueToResp("gender", aPersonal.getGender());
-    var dateOfBirth = nullableValueToResp("dateOfBirth", aPersonal.getDateOfBirth());
-    var country = nullableValueToResp("country", aPersonal.getCountry());
-    var city = nullableValueToResp("city", aPersonal.getCity());
-    var company = nullableValueToResp("company", aPersonal.getCompany());
-    var positionHeld = nullableValueToResp("positionHeld", aPersonal.getPositionHeld());
+    var nickName = nullableValueToStrResp("nickName", aPersonal.getNickName());
+    var firstName = nullableValueToStrResp("firstName", aPersonal.getFirstName());
+    var middleName = nullableValueToStrResp("middleName", aPersonal.getMiddleName());
+    var lastName = nullableValueToStrResp("lastName", aPersonal.getLastName());
+    var gender = nullableValueToStrResp("gender", aPersonal.getGender());
+    var dateOfBirth = nullableValueToStrResp("dateOfBirth", aPersonal.getDateOfBirth());
+    var country = nullableValueToStrResp("country", aPersonal.getCountry());
+    var city = nullableValueToStrResp("city", aPersonal.getCity());
+    var company = nullableValueToStrResp("company", aPersonal.getCompany());
+    var positionHeld = nullableValueToStrResp("positionHeld", aPersonal.getPositionHeld());
 
     if (onPublic)
     {
@@ -1398,6 +1399,8 @@ class ReqCreateAccount
   String company;
   String positionHeld;
 
+  NevisAccountThirdParty thirdParty;
+
   public String getEmail()
   {
     return email;
@@ -1527,6 +1530,16 @@ class ReqCreateAccount
   {
     this.positionHeld = positionHeld;
   }
+
+  public NevisAccountThirdParty getThirdParty()
+  {
+    return thirdParty;
+  }
+
+  public void setThirdParty(NevisAccountThirdParty thirdParty)
+  {
+    this.thirdParty = thirdParty;
+  }
 }
 
 class ReqDeleteAccount
@@ -1549,7 +1562,7 @@ class ReqDeleteAccount
 class ReqThirdPartyAuth
 {
   String identityCheckData;
-  String thirdParty;
+  NevisAccountThirdParty thirdParty;
   String email;
 
   String identityFieldName = "identity";
@@ -1566,12 +1579,12 @@ class ReqThirdPartyAuth
     this.identityCheckData = identityCheckData;
   }
 
-  public String getThirdParty()
+  public NevisAccountThirdParty getThirdParty()
   {
     return thirdParty;
   }
 
-  public void setThirdParty(String thirdParty)
+  public void setThirdParty(NevisAccountThirdParty thirdParty)
   {
     this.thirdParty = thirdParty;
   }

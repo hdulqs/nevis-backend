@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.Map;
 
 import static dwfe.nevis.util.NevisUtil.formatDateTimeToUTCstring;
@@ -63,14 +64,16 @@ class NevisTokenEnhancer implements TokenEnhancer //== https://stackoverflow.com
   public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication)
   {
     var aAccess = ((NevisAccountAccess) authentication.getPrincipal());
-    ((DefaultOAuth2AccessToken) accessToken)
-            .setAdditionalInformation(Map.of(
-                    "data", Map.of(
-                            "id", aAccess.getId(),
-                            "username", aAccess.getUsername(),
-                            "authorities", getAuthorities(aAccess.getAuthorities(), false),
-                            "createdOn", formatDateTimeToUTCstring(aAccess.getCreatedOn())
-                    )));
+
+    var data = new HashMap<String, Object>();
+    data.put("id", aAccess.getId());
+    data.put("username", aAccess.getUsername());
+    data.put("authorities", getAuthorities(aAccess.getAuthorities(), false));
+    data.put("thirdParty", aAccess.getThirdParty());
+    data.put("createdOn", formatDateTimeToUTCstring(aAccess.getCreatedOn()));
+
+    ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(Map.of("data", data));
+
     return accessToken;
   }
 }

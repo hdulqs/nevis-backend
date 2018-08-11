@@ -1,6 +1,6 @@
-package dwfe.nevis.db.other.gender;
+package dwfe.nevis.db.account.access;
 
-public enum NevisGender
+public enum NevisAccountThirdParty
 {
   //
   // ATTENTION.
@@ -8,6 +8,8 @@ public enum NevisGender
   // then CHANGING THE ORDER may cause the logic to malfunction
   //
 
-  M,
-  F
+  GOOGLE,
+  FACEBOOK,
+  VK,
+  TWITTER
 }

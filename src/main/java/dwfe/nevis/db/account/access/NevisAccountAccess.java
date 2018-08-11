@@ -30,6 +30,8 @@ public class NevisAccountAccess implements UserDetails, CredentialsContainer
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
 
+  private NevisAccountThirdParty thirdParty;
+
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(name = "nevis_account_authority",
           joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id"),
@@ -127,6 +129,16 @@ public class NevisAccountAccess implements UserDetails, CredentialsContainer
   public void setPassword(String password)
   {
     this.password = password;
+  }
+
+  public NevisAccountThirdParty getThirdParty()
+  {
+    return thirdParty;
+  }
+
+  public void setThirdParty(NevisAccountThirdParty thirdParty)
+  {
+    this.thirdParty = thirdParty;
   }
 
   public NevisAccountUsernameType getUsernameType()

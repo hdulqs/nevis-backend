@@ -15,6 +15,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -162,15 +164,18 @@ public class NevisTestUtil
     var url = prop.getResource().getSignIn();
     if (REFRESH == signInType)
     {
-      url = String.format(url + "?grant_type=refresh_token&refresh_token=%s",
-              auth.refresh_token
-      );
+      url = String.format(url + "?grant_type=refresh_token&refresh_token=%s", auth.refresh_token);
+
       log.info("token refreshing");
       log.info("= refresh token: {}", auth.refresh_token);
     }
     else
     {
-      url = nevisUtil.prepareSignInUrl(auth.username, auth.password, auth.usernameType);
+      url = String.format(url + "?grant_type=password&username=%1$s&password=%2$s%3$s",
+              URLEncoder.encode(auth.username, StandardCharsets.UTF_8),
+              URLEncoder.encode(auth.password, StandardCharsets.UTF_8),
+              auth.usernameType == null ? "" : "&usernameType=" + auth.usernameType
+      );
 
       log.info("signing in");
       log.info("= auth credentials:  {}:{}; usernameType={}", auth.username, auth.password, auth.usernameType);
