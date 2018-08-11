@@ -23,6 +23,9 @@ public class NevisConfigProperties implements InitializingBean
 
   @NotBlank
   private String api;
+  @NotBlank
+  private String backendHost;
+  private String apiRoot;
 
   private Resource resource = new Resource();
 
@@ -49,6 +52,8 @@ public class NevisConfigProperties implements InitializingBean
     if (scheduledTaskMailing.getTimeoutForDuplicateRequest() <= 0)
       scheduledTaskMailing.setTimeoutForDuplicateRequest(
               scheduledTaskMailing.getSendInterval() * scheduledTaskMailing.getMaxAttemptsToSendIfError());
+
+    apiRoot = backendHost + api;
 
     log.info(toString());
   }
@@ -561,6 +566,26 @@ public class NevisConfigProperties implements InitializingBean
     this.api = api;
   }
 
+  public String getBackendHost()
+  {
+    return backendHost;
+  }
+
+  public void setBackendHost(String backendHost)
+  {
+    this.backendHost = backendHost;
+  }
+
+  public String getApiRoot()
+  {
+    return apiRoot;
+  }
+
+  public void setApiRoot(String apiRoot)
+  {
+    this.apiRoot = apiRoot;
+  }
+
   public Resource getResource()
   {
     return resource;
@@ -638,7 +663,8 @@ public class NevisConfigProperties implements InitializingBean
                     "-====================================================-%n" +
                     "|                  ::[Nevis server]::                |%n" +
                     "|----------------------------------------------------|%n" +
-                    "| API                               %s%n" +
+                    "|                                                     %n" +
+                    "| API Root                          %s%n" +
                     "|                                                     %n" +
                     "| Scheduled Task - Mailing:                           %n" +
                     "|    initial delay                  %s%n" +
@@ -691,7 +717,7 @@ public class NevisConfigProperties implements InitializingBean
                     "|      /password-reset-confirm  %s%n" +
                     "|      /email-confirm           %s%n" +
                     "|_____________________________________________________%n",
-            api,
+            apiRoot,
             formatMillisecondsToReadableString(scheduledTaskMailing.initialDelay),
             formatMillisecondsToReadableString(scheduledTaskMailing.collectFromDbInterval),
             formatMillisecondsToReadableString(scheduledTaskMailing.sendInterval),

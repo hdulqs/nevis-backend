@@ -15,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -211,6 +214,11 @@ public class NevisUtil
     return JsonParserFactory.getJsonParser().parseMap(json).get(prop);
   }
 
+  public static Map<String, Object> getMapFromJson(String json)
+  {
+    return JsonParserFactory.getJsonParser().parseMap(json);
+  }
+
 
   //-------------------------------------------------------
   // Date and Time
@@ -243,6 +251,20 @@ public class NevisUtil
     // and don't forget about the time zone of MySQL
   }
 
+
+  //-------------------------------------------------------
+  // API
+  //
+
+  public String prepareSignInUrl(String username, String password, NevisAccountUsernameType usernameType)
+  {
+    return String.format(prop.getApiRoot() + prop.getResource().getSignIn()
+                    + "?grant_type=password&username=%1$s&password=%2$s%3$s",
+            URLEncoder.encode(username, StandardCharsets.UTF_8),
+            URLEncoder.encode(password, StandardCharsets.UTF_8),
+            usernameType == null ? "" : "&usernameType=" + usernameType
+    );
+  }
 
   //-------------------------------------------------------
   // OTHER

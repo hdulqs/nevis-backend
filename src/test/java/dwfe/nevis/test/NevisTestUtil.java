@@ -1,6 +1,7 @@
 package dwfe.nevis.test;
 
 import dwfe.nevis.config.NevisConfigProperties;
+import dwfe.nevis.util.NevisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -13,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -36,14 +35,14 @@ public class NevisTestUtil
 {
   private static final Logger log = LoggerFactory.getLogger(NevisTestUtil.class);
   private final NevisConfigProperties prop;
-  private final String ROOT_URI;
+  private final NevisUtil nevisUtil;
   private final RestTemplateBuilder rtb;
   private final NevisTestVariablesForAuthTest VARS_FOR_AUTH_TESTS;
 
-  private NevisTestUtil(NevisConfigProperties prop, RestTemplateBuilder restTemplateBuilder, NevisTestVariablesForAuthTest varsForAuthTest)
+  private NevisTestUtil(NevisConfigProperties prop, NevisUtil nevisUtil, RestTemplateBuilder restTemplateBuilder, NevisTestVariablesForAuthTest varsForAuthTest)
   {
     this.prop = prop;
-    this.ROOT_URI = "http://localhost:8080" + prop.getApi();
+    this.nevisUtil = nevisUtil;
     this.rtb = restTemplateBuilder;
     this.VARS_FOR_AUTH_TESTS = varsForAuthTest;
   }
@@ -92,7 +91,7 @@ public class NevisTestUtil
 
   private RequestEntity<?> generateGETrequest(String url, String access_token)
   {
-    var reqBuilder = RequestEntity.get(URI.create(ROOT_URI + url));
+    var reqBuilder = RequestEntity.get(URI.create(prop.getApiRoot() + url));
     if (access_token != null)
       reqBuilder.header("Authorization", "Bearer " + access_token);
     return reqBuilder.build();
@@ -101,7 +100,7 @@ public class NevisTestUtil
   private RequestEntity<?> generatePOSTrequest(String url, String access_token, Map<String, Object> map)
   {
     var reqBuilder = RequestEntity
-            .post(URI.create(ROOT_URI + url))
+            .post(URI.create(prop.getApiRoot() + url))
             .contentType(MediaType.APPLICATION_JSON_UTF8);
     if (access_token != null)
       reqBuilder.header("Authorization", "Bearer " + access_token);
@@ -171,19 +170,10 @@ public class NevisTestUtil
     }
     else
     {
-      try
-      {
-        url = String.format(url + "?grant_type=password&username=%1$s&password=%2$s%3$s",
-                URLEncoder.encode(auth.username, "UTF-8"),
-                URLEncoder.encode(auth.password, "UTF-8"),
-                auth.usernameType == null ? "" : "&usernameType=" + auth.usernameType
-        );
-      }
-      catch (UnsupportedEncodingException ignored)
-      {
-      }
+      url = nevisUtil.prepareSignInUrl(auth.username, auth.password, auth.usernameType);
+
       log.info("signing in");
-      log.info("= auth credentials:  {}:{}", auth.username, auth.password);
+      log.info("= auth credentials:  {}:{}; usernameType={}", auth.username, auth.password, auth.usernameType);
     }
     RequestEntity<?> req = generatePOSTrequest(url, null, null);
 

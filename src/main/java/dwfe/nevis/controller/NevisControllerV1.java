@@ -18,7 +18,10 @@ import dwfe.nevis.db.other.gender.NevisGender;
 import dwfe.nevis.util.NevisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -27,6 +30,7 @@ import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -44,6 +48,7 @@ public class NevisControllerV1
   private final NevisConfigProperties prop;
   private final NevisUtil util;
   private final RestTemplate restTemplate;
+  private final RestTemplateBuilder restTemplateBuilder;
   private final ConsumerTokenServices tokenServices;
 
   private final NevisAccountAccessService accessService;
@@ -59,6 +64,7 @@ public class NevisControllerV1
     this.prop = prop;
     this.util = util;
     this.restTemplate = restTemplateBuilder.build();
+    this.restTemplateBuilder = restTemplateBuilder;
     this.tokenServices = tokenServices;
 
     this.accessService = accessService;
@@ -320,20 +326,82 @@ public class NevisControllerV1
   public String thirdPartyAuth(@RequestBody ReqThirdPartyAuth req)
   {
     var errorCodes = new ArrayList<String>();
+    var password = getRandomStrAlphaDigit(15);
+    var data = "";
 
     if (isDefaultPreCheckOk(req.identityCheckData, req.identityFieldName, errorCodes)
             && isDefaultPreCheckOk(req.thirdParty, req.thirdPartyFieldName, errorCodes)
             && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes))
     {
 
-      // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
-      String url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
-      ResponseEntity<String> exchange = restTemplate.exchange(url, HttpMethod.POST, null, String.class);
-      System.out.println(exchange.getBody());
+      if (req.thirdParty.equals("google"))
+      {
+        // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
+        String url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
+
+        FutureTask<ResponseEntity<String>> exchange =
+                new FutureTask<>(() -> restTemplate.exchange(url, HttpMethod.POST, null, String.class));
+        new Thread(exchange).start();
+
+        try
+        {
+          var response = exchange.get(7, TimeUnit.SECONDS);
+          if (response.getStatusCodeValue() == 200)
+          {
+            var map = getMapFromJson(response.getBody());
+            if (map.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
+            {
+              var email = (String) map.get("email");
+
+              var aEmailOpt = emailService.findByValue(email);
+              if (aEmailOpt.isPresent())
+              {
+                var aAccess = accessService.findById(aEmailOpt.get().getAccountId()).get();
+                aAccess.setPassword(preparePasswordForDB(password));
+                accessService.save(aAccess);
+              }
+              else
+              {
+                var reqCreateAcc = new ReqCreateAccount();
+                reqCreateAcc.setPassword(password);
+                reqCreateAcc.setEmail(email);
+                reqCreateAcc.setFirstName((String) map.get("given_name"));
+                reqCreateAcc.setLastName((String) map.get("family_name"));
+                createAccount(reqCreateAcc);
+              }
+
+              var reqSignIn = RequestEntity
+                      .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
+                      .contentType(MediaType.APPLICATION_JSON_UTF8)
+                      .build();
+              var rt = restTemplateBuilder.basicAuthorization(
+                      prop.getOauth2ClientTrusted().getId(),
+                      prop.getOauth2ClientTrusted().getPassword())
+                      .build();
+              var resp = rt.exchange(reqSignIn, String.class);
+
+              if (resp.getStatusCodeValue() == 200)
+              {
+                data = resp.getBody();
+              }
+              else
+                errorCodes.add("error-google-sign-in");
+            }
+            else
+              errorCodes.add("fake-detected-google-sign-in");
+          }
+          else
+            errorCodes.add("error-google-sign-in");
+        }
+        catch (Throwable e)
+        {
+          errorCodes.add("timeout-google-sign-in");
+        }
+      }
 
     }
 
-    return getResponse(errorCodes);
+    return getResponse(errorCodes, data);
   }
 
 

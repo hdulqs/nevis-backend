@@ -163,6 +163,12 @@ public class NevisAccountAccessService implements UserDetailsService
     return accessRepository.findById(id);
   }
 
+  @Transactional
+  public void save(NevisAccountAccess aAccess)
+  {
+    accessRepository.save(aAccess);
+  }
+
   @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 5, rollbackFor = Throwable.class)
   public void save(NevisAccountAccess aAccess,
                    NevisMailing mailing, NevisMailingService mailingService)
