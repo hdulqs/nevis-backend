@@ -10,6 +10,4 @@ public enum NevisAccountThirdParty
 
   GOOGLE,
   FACEBOOK,
-  VK,
-  TWITTER
 }

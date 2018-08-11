@@ -328,14 +328,19 @@ public class NevisControllerV1
   public String thirdPartyAuth(@RequestBody ReqThirdPartyAuth req)
   {
     var errorCodes = new ArrayList<String>();
-    var password = getRandomStrAlphaDigit(15);
     var data = "";
+    var password = getRandomStrAlphaDigit(15);
+    var thirdParty = req.thirdParty;
+    String email = null;
+    String firstName = null;
+    String lastName = null;
+
 
     if (isDefaultPreCheckOk(req.identityCheckData, req.identityFieldName, errorCodes)
             && isNotNullPreCheckOk(req.thirdParty, req.thirdPartyFieldName, errorCodes)
             && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes))
     {
-      if (GOOGLE == req.thirdParty)
+      if (GOOGLE == thirdParty)
       {
         // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
         String url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
@@ -352,47 +357,9 @@ public class NevisControllerV1
             var map = getMapFromJson(response.getBody());
             if (map.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
             {
-              var email = (String) map.get("email");
-
-              if (email.equals(req.email))
-              {
-                var aEmailOpt = emailService.findByValue(email);
-                if (aEmailOpt.isPresent())
-                {
-                  var aAccess = accessService.findById(aEmailOpt.get().getAccountId()).get();
-                  aAccess.setPassword(preparePasswordForDB(password));
-                  accessService.save(aAccess);
-                }
-                else
-                {
-                  var reqCreateAcc = new ReqCreateAccount();
-                  reqCreateAcc.setPassword(password);
-                  reqCreateAcc.setEmail(email);
-                  reqCreateAcc.setFirstName((String) map.get("given_name"));
-                  reqCreateAcc.setLastName((String) map.get("family_name"));
-                  reqCreateAcc.setThirdParty(GOOGLE);
-                  createAccount(reqCreateAcc);
-                }
-
-                var reqSignIn = RequestEntity
-                        .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .build();
-                var rt = restTemplateBuilder.basicAuthorization(
-                        prop.getOauth2ClientTrusted().getId(),
-                        prop.getOauth2ClientTrusted().getPassword())
-                        .build();
-                var resp = rt.exchange(reqSignIn, String.class);
-
-                if (resp.getStatusCodeValue() == 200)
-                {
-                  data = resp.getBody();
-                }
-                else
-                  errorCodes.add("error-google-sign-in");
-              }
-              else
-                errorCodes.add("fake-detected-google-sign-in");
+              email = (String) map.get("email");
+              firstName = (String) map.get("given_name");
+              lastName = (String) map.get("family_name");
             }
             else
               errorCodes.add("fake-detected-google-sign-in");
@@ -404,6 +371,45 @@ public class NevisControllerV1
         {
           errorCodes.add("timeout-google-sign-in");
         }
+      }
+
+
+      if (email != null && email.equals(req.email))
+      {
+        var aEmailOpt = emailService.findByValue(email);
+        if (aEmailOpt.isPresent())
+        {
+          var aAccess = accessService.findById(aEmailOpt.get().getAccountId()).get();
+          aAccess.setPassword(preparePasswordForDB(password));
+          accessService.save(aAccess);
+        }
+        else
+        {
+          var reqCreateAcc = new ReqCreateAccount();
+          reqCreateAcc.setPassword(password);
+          reqCreateAcc.setEmail(email);
+          reqCreateAcc.setFirstName(firstName);
+          reqCreateAcc.setLastName(lastName);
+          reqCreateAcc.setThirdParty(thirdParty);
+          createAccount(reqCreateAcc);
+        }
+
+        var reqSignIn = RequestEntity
+                .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .build();
+        var rt = restTemplateBuilder.basicAuthorization(
+                prop.getOauth2ClientTrusted().getId(),
+                prop.getOauth2ClientTrusted().getPassword())
+                .build();
+        var resp = rt.exchange(reqSignIn, String.class);
+
+        if (resp.getStatusCodeValue() == 200)
+        {
+          data = resp.getBody();
+        }
+        else
+          errorCodes.add("error-google-sign-in");
       }
 
     }
