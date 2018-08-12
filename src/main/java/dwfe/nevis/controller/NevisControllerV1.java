@@ -36,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
+import static dwfe.nevis.db.account.access.NevisAccountThirdParty.FACEBOOK;
 import static dwfe.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.nevis.db.account.access.NevisAccountUsernameType.*;
 import static dwfe.nevis.db.mailing.NevisMailingType.*;
@@ -346,6 +347,10 @@ public class NevisControllerV1
           errorCodes.add("fake-detected-" + name);
       }
     }
+    else if (FACEBOOK == thirdParty)
+    {
+      var name = "facebook-sign-in-check";
+    }
 
     if (errorCodes.size() == 0 && email != null)
     {
@@ -380,14 +385,12 @@ public class NevisControllerV1
         var resp = rt.exchange(reqSignIn, String.class);
 
         if (resp.getStatusCodeValue() == 200)
-        {
           data = resp.getBody();
-        }
         else
-          errorCodes.add("error-google-sign-in");
+          errorCodes.add("error-nevis-sign-in");
       }
       else
-        errorCodes.add("error-google-sign-in");
+        errorCodes.add("third-party-emails-are-different");
     }
 
     return getResponse(errorCodes, data);
