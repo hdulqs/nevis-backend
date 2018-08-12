@@ -330,6 +330,9 @@ public class NevisControllerV1
       return getResponse(errorCodes);
 
 
+    //
+    // STAGE 1 - Check the fact of Log-in on the Third-party provider side
+    //
     if (GOOGLE == thirdParty)
     {
       errName = "google-sign";
@@ -353,9 +356,13 @@ public class NevisControllerV1
       errName = "facebook-sign";
     }
 
+
+    //
+    // STAGE 2 - Prepare an Account for Log-in on the Nevis Server side
+    //
+    errName = "third-party";
     if (email != null)
     {
-      errName = "third-party";
       if (email.equals(req.email))
       {
         var aEmailOpt = emailService.findByValue(email);
@@ -374,28 +381,38 @@ public class NevisControllerV1
           reqCreateAcc.setLastName(lastName);
           reqCreateAcc.setThirdParty(thirdParty);
           var resp = createAccount(reqCreateAcc);
-          // TODO - акк не был создан
+
+          var successCreateAcc = (Boolean) getPropValueFromJson("success", resp);
+          if (!successCreateAcc)
+            errorCodes.add(errName + "-failed-to-create-nevis-account");
         }
-
-        var reqSignIn = RequestEntity
-                .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .build();
-
-        var respSignIn = restTemplateBuilder
-                .basicAuthorization(
-                        prop.getOauth2ClientTrusted().getId(),
-                        prop.getOauth2ClientTrusted().getPassword())
-                .build()
-                .exchange(reqSignIn, String.class);
-
-        if (respSignIn.getStatusCodeValue() == 200)
-          data = respSignIn.getBody();
-        else
-          errorCodes.add(errName + "-error-nevis-sign-in");
       }
       else
         errorCodes.add(errName + "-emails-are-different");
+    }
+
+
+    //
+    // STAGE 3 - Log-in on the Nevis Server side
+    //
+    if (errorCodes.size() == 0)
+    {
+      var reqSignIn = RequestEntity
+              .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
+              .contentType(MediaType.APPLICATION_JSON_UTF8)
+              .build();
+
+      var respSignIn = restTemplateBuilder
+              .basicAuthorization(
+                      prop.getOauth2ClientTrusted().getId(),
+                      prop.getOauth2ClientTrusted().getPassword())
+              .build()
+              .exchange(reqSignIn, String.class);
+
+      if (respSignIn.getStatusCodeValue() == 200)
+        data = respSignIn.getBody();
+      else
+        errorCodes.add(errName + "-error-nevis-sign-in");
     }
     return getResponse(errorCodes, data);
   }
