@@ -139,7 +139,7 @@ public class NevisControllerV1
       // https://developers.google.com/recaptcha/docs/verify#api-request
       var url = String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s",
               prop.getCaptcha().getGoogleSecretKey(), req.googleResponse);
-      var body = exchangeWrap(url, HttpMethod.POST, 7, errName, errorCodes);
+      var body = exchangeWrap(url, HttpMethod.POST, 3, errName, errorCodes);
       if (errorCodes.size() == 0)
       {
         var success = (Boolean) body.get("success");
@@ -331,14 +331,14 @@ public class NevisControllerV1
 
 
     //
-    // STAGE 1 - Check the fact of Log-in on the Third-party provider side
+    // STAGE 1 - Check the fact of Sign-in on the Third-party Authentication Server side
     //
     if (GOOGLE == thirdParty)
     {
       errName = "google-sign";
       // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
       var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
-      var body = exchangeWrap(url, HttpMethod.POST, 7, errName, errorCodes);
+      var body = exchangeWrap(url, HttpMethod.POST, 3, errName, errorCodes);
       if (errorCodes.size() == 0)
       {
         if (body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
@@ -358,7 +358,7 @@ public class NevisControllerV1
 
 
     //
-    // STAGE 2 - Prepare an Account for Log-in on the Nevis Server side
+    // STAGE 2 - Prepare the Nevis Account before Sign-in to it
     //
     errName = "third-party";
     if (email != null)
@@ -367,13 +367,13 @@ public class NevisControllerV1
       {
         var aEmailOpt = emailService.findByValue(email);
         if (aEmailOpt.isPresent())
-        {
+        { // password change
           var aAccess = accessService.findById(aEmailOpt.get().getAccountId()).get();
           aAccess.setPassword(preparePasswordForDB(password));
           accessService.save(aAccess);
         }
         else
-        {
+        { // create account
           var reqCreateAcc = new ReqCreateAccount();
           reqCreateAcc.setPassword(password);
           reqCreateAcc.setEmail(email);
@@ -393,12 +393,14 @@ public class NevisControllerV1
 
 
     //
-    // STAGE 3 - Log-in on the Nevis Server side
+    // STAGE 3 - Sign-in on the Nevis Server side
     //
     if (errorCodes.size() == 0)
     {
+      var url = util.prepareSignInUrl(email, password, EMAIL);
+
       var reqSignIn = RequestEntity
-              .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
+              .post(URI.create(url))
               .contentType(MediaType.APPLICATION_JSON_UTF8)
               .build();
 
