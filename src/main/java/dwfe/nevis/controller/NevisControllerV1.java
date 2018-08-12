@@ -132,19 +132,19 @@ public class NevisControllerV1
   public String googleCaptchaValidate(@RequestBody ReqGoogleCaptchaResponse req)
   {
     var errorCodes = new ArrayList<String>();
+    var errName = "google-captcha";
 
-    if (isDefaultPreCheckOk(req.googleResponse, "google-response", errorCodes))
+    if (isDefaultPreCheckOk(req.googleResponse, errName, errorCodes))
     {
-      var name = "google-captcha";
       // https://developers.google.com/recaptcha/docs/verify#api-request
       var url = String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s",
               prop.getCaptcha().getGoogleSecretKey(), req.googleResponse);
-      var body = exchangeWrap(url, HttpMethod.POST, 7, name, errorCodes);
+      var body = exchangeWrap(url, HttpMethod.POST, 7, errName, errorCodes);
       if (errorCodes.size() == 0)
       {
         var success = (Boolean) body.get("success");
         if (!success)
-          errorCodes.add(name + "-detected-robot");
+          errorCodes.add(errName + "-detected-robot");
       }
     }
     return getResponse(errorCodes);
@@ -315,6 +315,7 @@ public class NevisControllerV1
   public String thirdPartyAuth(@RequestBody ReqThirdPartyAuth req)
   {
     var errorCodes = new ArrayList<String>();
+    var errName = "";
     var data = "";
     var thirdParty = req.thirdParty;
     var password = getRandomStrAlphaDigit(15);
@@ -331,10 +332,10 @@ public class NevisControllerV1
 
     if (GOOGLE == thirdParty)
     {
-      var name = "google-sign-in-check";
+      errName = "google-sign";
       // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
       var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
-      var body = exchangeWrap(url, HttpMethod.POST, 7, name, errorCodes);
+      var body = exchangeWrap(url, HttpMethod.POST, 7, errName, errorCodes);
       if (errorCodes.size() == 0)
       {
         if (body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
@@ -344,16 +345,17 @@ public class NevisControllerV1
           lastName = (String) body.get("family_name");
         }
         else
-          errorCodes.add("fake-detected-" + name);
+          errorCodes.add(errName + "-fake-detected");
       }
     }
     else if (FACEBOOK == thirdParty)
     {
-      var name = "facebook-sign-in-check";
+      errName = "facebook-sign";
     }
 
-    if (errorCodes.size() == 0 && email != null)
+    if (email != null)
     {
+      errName = "third-party";
       if (email.equals(req.email))
       {
         var aEmailOpt = emailService.findByValue(email);
@@ -371,28 +373,30 @@ public class NevisControllerV1
           reqCreateAcc.setFirstName(firstName);
           reqCreateAcc.setLastName(lastName);
           reqCreateAcc.setThirdParty(thirdParty);
-          createAccount(reqCreateAcc);
+          var resp = createAccount(reqCreateAcc);
+          // TODO - акк не был создан
         }
 
         var reqSignIn = RequestEntity
                 .post(URI.create(util.prepareSignInUrl(email, password, EMAIL)))
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .build();
-        var rt = restTemplateBuilder.basicAuthorization(
-                prop.getOauth2ClientTrusted().getId(),
-                prop.getOauth2ClientTrusted().getPassword())
-                .build();
-        var resp = rt.exchange(reqSignIn, String.class);
 
-        if (resp.getStatusCodeValue() == 200)
-          data = resp.getBody();
+        var respSignIn = restTemplateBuilder
+                .basicAuthorization(
+                        prop.getOauth2ClientTrusted().getId(),
+                        prop.getOauth2ClientTrusted().getPassword())
+                .build()
+                .exchange(reqSignIn, String.class);
+
+        if (respSignIn.getStatusCodeValue() == 200)
+          data = respSignIn.getBody();
         else
-          errorCodes.add("error-nevis-sign-in");
+          errorCodes.add(errName + "-error-nevis-sign-in");
       }
       else
-        errorCodes.add("third-party-emails-are-different");
+        errorCodes.add(errName + "-emails-are-different");
     }
-
     return getResponse(errorCodes, data);
   }
 
@@ -1134,7 +1138,7 @@ public class NevisControllerV1
     return dateOfBirth == null ? null : LocalDate.parse(dateOfBirth);
   }
 
-  private Map<String, Object> exchangeWrap(String url, HttpMethod method, long secondsToWait, String name, List<String> errorCodes)
+  private Map<String, Object> exchangeWrap(String url, HttpMethod method, long secondsToWait, String errName, List<String> errorCodes)
   {
     Map<String, Object> result = null;
     try
@@ -1145,11 +1149,11 @@ public class NevisControllerV1
       if (response.getStatusCodeValue() == 200)
         result = getMapFromJson(response.getBody());
       else
-        errorCodes.add("error-exchange-" + name);
+        errorCodes.add(errName + "-error-exchange");
     }
     catch (Throwable e)
     {
-      errorCodes.add("error-connection-" + name);
+      errorCodes.add(errName + "-error-connection");
     }
     return result;
   }
