@@ -22,7 +22,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
@@ -135,29 +134,16 @@ public class NevisControllerV1
 
     if (isDefaultPreCheckOk(req.googleResponse, "google-response", errorCodes))
     {
+      var name = "google-captcha";
       // https://developers.google.com/recaptcha/docs/verify#api-request
       var url = String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s",
               prop.getCaptcha().getGoogleSecretKey(), req.googleResponse);
-
-      FutureTask<ResponseEntity<String>> exchange =
-              new FutureTask<>(() -> restTemplate.exchange(url, HttpMethod.POST, null, String.class));
-      new Thread(exchange).start();
-
-      try
+      var body = exchangeWrap(url, HttpMethod.POST, 7, name, errorCodes);
+      if (errorCodes.size() == 0)
       {
-        var response = exchange.get(7, TimeUnit.SECONDS);
-        if (response.getStatusCodeValue() == 200)
-        {
-          var success = (Boolean) getPropValueFromJson("success", response.getBody());
-          if (!success)
-            errorCodes.add("google-captcha-detected-robot");
-        }
-        else
-          errorCodes.add("error-google-captcha-gateway");
-      }
-      catch (Throwable e)
-      {
-        errorCodes.add("timeout-google-captcha-gateway");
+        var success = (Boolean) body.get("success");
+        if (!success)
+          errorCodes.add(name + "-detected-robot");
       }
     }
     return getResponse(errorCodes);
@@ -329,52 +315,41 @@ public class NevisControllerV1
   {
     var errorCodes = new ArrayList<String>();
     var data = "";
-    var password = getRandomStrAlphaDigit(15);
     var thirdParty = req.thirdParty;
+    var password = getRandomStrAlphaDigit(15);
+
     String email = null;
     String firstName = null;
     String lastName = null;
 
-
-    if (isDefaultPreCheckOk(req.identityCheckData, req.identityFieldName, errorCodes)
+    if (!(isDefaultPreCheckOk(req.identityCheckData, req.identityFieldName, errorCodes)
             && isNotNullPreCheckOk(req.thirdParty, req.thirdPartyFieldName, errorCodes)
-            && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes))
+            && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes)))
+      return getResponse(errorCodes);
+
+
+    if (GOOGLE == thirdParty)
     {
-      if (GOOGLE == thirdParty)
+      var name = "google-sign-in-check";
+      // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
+      var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
+      var body = exchangeWrap(url, HttpMethod.POST, 7, name, errorCodes);
+      if (errorCodes.size() == 0)
       {
-        // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
-        String url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
-
-        FutureTask<ResponseEntity<String>> exchange =
-                new FutureTask<>(() -> restTemplate.exchange(url, HttpMethod.POST, null, String.class));
-        new Thread(exchange).start();
-
-        try
+        if (body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
         {
-          var response = exchange.get(7, TimeUnit.SECONDS);
-          if (response.getStatusCodeValue() == 200)
-          {
-            var map = getMapFromJson(response.getBody());
-            if (map.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
-            {
-              email = (String) map.get("email");
-              firstName = (String) map.get("given_name");
-              lastName = (String) map.get("family_name");
-            }
-            else
-              errorCodes.add("fake-detected-google-sign-in");
-          }
-          else
-            errorCodes.add("error-google-sign-in");
+          email = (String) body.get("email");
+          firstName = (String) body.get("given_name");
+          lastName = (String) body.get("family_name");
         }
-        catch (Throwable e)
-        {
-          errorCodes.add("timeout-google-sign-in");
-        }
+        else
+          errorCodes.add("fake-detected-" + name);
       }
+    }
 
-
-      if (email != null && email.equals(req.email))
+    if (errorCodes.size() == 0 && email != null)
+    {
+      if (email.equals(req.email))
       {
         var aEmailOpt = emailService.findByValue(email);
         if (aEmailOpt.isPresent())
@@ -411,7 +386,8 @@ public class NevisControllerV1
         else
           errorCodes.add("error-google-sign-in");
       }
-
+      else
+        errorCodes.add("error-google-sign-in");
     }
 
     return getResponse(errorCodes, data);
@@ -1155,6 +1131,25 @@ public class NevisControllerV1
     return dateOfBirth == null ? null : LocalDate.parse(dateOfBirth);
   }
 
+  private Map<String, Object> exchangeWrap(String url, HttpMethod method, long secondsToWait, String name, List<String> errorCodes)
+  {
+    Map<String, Object> result = null;
+    try
+    {
+      var exchange = new FutureTask<>(() -> restTemplate.exchange(url, method, null, String.class));
+      new Thread(exchange).start();
+      var response = exchange.get(secondsToWait, TimeUnit.SECONDS);
+      if (response.getStatusCodeValue() == 200)
+        result = getMapFromJson(response.getBody());
+      else
+        errorCodes.add("error-exchange-" + name);
+    }
+    catch (Throwable e)
+    {
+      errorCodes.add("error-connection-" + name);
+    }
+    return result;
+  }
 
   //-------------------------------------------------------
   // Response
