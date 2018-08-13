@@ -95,6 +95,12 @@ public class NevisTestVariablesForIntegrationTest
           NevisTestChecker.of(true, 200, Map.of("password", Account7_Pass_Encoded))
   );
 
+  public static final List<NevisTestChecker> checkers_for_googleCaptchaValidate = List.of(
+          NevisTestChecker.of(false, 200, Map.of(), "missing-google-captcha"),
+          NevisTestChecker.of(false, 200, Map.of("googleResponse", ""), "empty-google-captcha"),
+          NevisTestChecker.of(false, 200, Map.of("googleResponse", "12345"), "google-captcha-detected-robot")
+  );
+
   public static List<NevisTestChecker> checkers_for_createAccount()
   {
     var list = new ArrayList<NevisTestChecker>(List.of(
@@ -214,6 +220,15 @@ public class NevisTestVariablesForIntegrationTest
           NevisTestChecker.of(false, 200, Map.of("curpass", ""), "empty-curpass"),
           NevisTestChecker.of(false, 200, Map.of("curpass", "1"), "wrong-curpass"),
           NevisTestChecker.of(true, 200, Map.of("curpass", Account1_Pass))
+  );
+
+  public static final List<NevisTestChecker> checkers_for_thirdPartyAuth = List.of(
+          NevisTestChecker.of(false, 200, Map.of(), "missing-identity"),
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", ""), "empty-identity"),
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345"), "missing-third-party"),
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "GOOGLE"), "missing-email"),
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "GOOGLE", "email", ""), "empty-email"),
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "GOOGLE", "email", "ds@df.sa"), "google-sign-error-connection")
   );
 
 

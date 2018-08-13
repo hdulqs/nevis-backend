@@ -331,7 +331,7 @@ public class NevisControllerV1
 
 
     //
-    // STAGE 1 - Check the fact of Sign-in on the Third-party Authentication Server side
+    // STAGE 1 - Check the fact of Sign-in on the Third-party Authentication Server
     //
     if (GOOGLE == thirdParty)
     {
@@ -339,7 +339,7 @@ public class NevisControllerV1
       // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
       var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
       var body = exchangeWrap(url, HttpMethod.POST, 3, errName, errorCodes);
-      if (errorCodes.size() == 0)
+      if (body != null && body.containsKey("email"))
       {
         if (body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
         {
@@ -393,7 +393,7 @@ public class NevisControllerV1
 
 
     //
-    // STAGE 3 - Sign-in on the Nevis Server side
+    // STAGE 3 - Sign-in on the Nevis Server
     //
     if (errorCodes.size() == 0)
     {
@@ -414,7 +414,7 @@ public class NevisControllerV1
       if (respSignIn.getStatusCodeValue() == 200)
         data = respSignIn.getBody();
       else
-        errorCodes.add(errName + "-error-nevis-sign-in");
+        errorCodes.add(errName + "-nevis-sign-in-failed");
     }
     return getResponse(errorCodes, data);
   }

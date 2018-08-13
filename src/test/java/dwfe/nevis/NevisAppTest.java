@@ -175,7 +175,14 @@ public class NevisAppTest
   }
 
   @Test
-  public void _02_03_createAccount()
+  public void _02_03_googleCaptchaValidate()
+  {
+    logHead("Google Captcha Validate");
+    util.check(POST, prop.getResource().getGoogleCaptchaValidate(), auth.getAnonym_accessToken(), checkers_for_googleCaptchaValidate);
+  }
+
+  @Test
+  public void _02_04_createAccount()
   {
     logHead("Create Account");
 
@@ -314,7 +321,7 @@ public class NevisAppTest
   }
 
   @Test
-  public void _02_04_id()
+  public void _02_05_id()
   {
     logHead("ID");
 
@@ -323,6 +330,13 @@ public class NevisAppTest
     util.check(GET, resource + "1", auth.getAnonym_accessToken(), checkers_for_id1);
     util.check(GET, resource + Account1_ID, auth.getAnonym_accessToken(), checkers_for_id2);
     util.check(GET, resource + Account2_ID, auth.getAnonym_accessToken(), checkers_for_id3);
+  }
+
+  @Test
+  public void _02_06_thirdPartyAuth()
+  {
+    logHead("Third-party Auth");
+    util.check(POST, prop.getResource().getThirdPartyAuth(), auth.getAnonym_accessToken(), checkers_for_thirdPartyAuth);
   }
 
   @Test
