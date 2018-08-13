@@ -363,6 +363,11 @@ public class NevisConfigProperties implements InitializingBean
     @NotBlank
     private String googleClientId;
 
+    @NotBlank
+    private String facebookAppId;
+    @NotBlank
+    private String facebookAppSecret;
+
     public String getGoogleClientId()
     {
       return googleClientId;
@@ -371,6 +376,26 @@ public class NevisConfigProperties implements InitializingBean
     public void setGoogleClientId(String googleClientId)
     {
       this.googleClientId = googleClientId;
+    }
+
+    public String getFacebookAppId()
+    {
+      return facebookAppId;
+    }
+
+    public void setFacebookAppId(String facebookAppId)
+    {
+      this.facebookAppId = facebookAppId;
+    }
+
+    public String getFacebookAppSecret()
+    {
+      return facebookAppSecret;
+    }
+
+    public void setFacebookAppSecret(String facebookAppSecret)
+    {
+      this.facebookAppSecret = facebookAppSecret;
     }
   }
 

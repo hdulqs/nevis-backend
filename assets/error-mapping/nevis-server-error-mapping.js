@@ -62,8 +62,8 @@ nevisServerErrorCodesMap = {
     'phone-present-in-database': 'Phone present in Database',
     'the-generated-password-should-be-sent-somewhere': 'The generated Password should be sent somewhere',
     'third-party-emails-are-different': 'Check response returned different Email',
-    'third-party-failed-to-create-nevis-account': 'Failed to Create Account',
-    'third-party-nevis-sign-in-failed': 'Failed Sign-in',
+    'third-party-failed-to-create-nevis-account': 'Failed to Create Nevis Account',
+    'third-party-nevis-sign-in-failed': 'Failed Nevis Sign-in',
     'username-must-be-passed': 'Username must be passed',
     'wrong-curpass': 'Wrong Current Password'
 };

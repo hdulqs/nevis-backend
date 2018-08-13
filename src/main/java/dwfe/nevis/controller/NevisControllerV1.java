@@ -354,6 +354,28 @@ public class NevisControllerV1
     else if (FACEBOOK == thirdParty)
     {
       errName = "facebook-sign";
+
+      // https://developers.facebook.com/docs/facebook-login/access-tokens#apptokens
+      // https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
+      var url = String.format("https://graph.facebook.com/debug_token?input_token=%s&access_token=%s|%s",
+              req.identityCheckData, prop.getThirdPartyAuth().getFacebookAppId(), prop.getThirdPartyAuth().getFacebookAppSecret());
+      var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+      if (body != null)
+      {
+        var debug = (Map<String, Object>) body.get("data");
+        if (debug.get("app_id").equals(prop.getThirdPartyAuth().getFacebookAppId())
+                && debug.get("is_valid").equals(true))
+        {
+          url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s", req.identityCheckData);
+          body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+          if (body != null && body.containsKey("email"))
+          {
+            email = (String) body.get("email");
+            firstName = (String) body.get("first_name");
+            lastName = (String) body.get("last_name");
+          }
+        }
+      }
     }
 
 
