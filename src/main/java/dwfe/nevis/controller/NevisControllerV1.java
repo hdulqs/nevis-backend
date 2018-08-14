@@ -341,7 +341,9 @@ public class NevisControllerV1
       var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
       if (body != null)
       {
-        if (body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
+        if (body.containsKey("aud") && body.containsKey("email_verified")
+                && body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId())
+                && body.get("email_verified").equals("true"))
         {
           if (body.containsKey("email"))
           {
@@ -366,8 +368,9 @@ public class NevisControllerV1
               req.identityCheckData, facebookAppId, prop.getThirdPartyAuth().getFacebookAppSecret());
       var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
       var debug = (Map<String, Object>) body.get("data");
-      if (debug.containsKey("app_id")
-              && debug.get("app_id").equals(facebookAppId))
+      if (debug.containsKey("app_id") && debug.containsKey("is_valid")
+              && debug.get("app_id").equals(facebookAppId)
+              && debug.get("is_valid").equals(true))
       {
         errName = "facebook-api";
         url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s", req.identityCheckData);
