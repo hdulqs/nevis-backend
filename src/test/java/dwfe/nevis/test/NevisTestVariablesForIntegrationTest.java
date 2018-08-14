@@ -226,9 +226,14 @@ public class NevisTestVariablesForIntegrationTest
           NevisTestChecker.of(false, 200, Map.of(), "missing-identity"),
           NevisTestChecker.of(false, 200, Map.of("identityCheckData", ""), "empty-identity"),
           NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345"), "missing-third-party"),
+
           NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "GOOGLE"), "missing-email"),
           NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "GOOGLE", "email", ""), "empty-email"),
-          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "GOOGLE", "email", "ds@df.sa"), "google-sign-error-connection")
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "GOOGLE", "email", "ds@df.sa"), "google-sign-error-connection"),
+
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "FACEBOOK"), "missing-email"),
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "FACEBOOK", "email", ""), "empty-email"),
+          NevisTestChecker.of(false, 200, Map.of("identityCheckData", "12345", "thirdParty", "FACEBOOK", "email", "ds@df.sa"), "facebook-debug-fake-detected")
   );
 
 

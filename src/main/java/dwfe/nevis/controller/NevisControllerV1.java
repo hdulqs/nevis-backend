@@ -338,14 +338,19 @@ public class NevisControllerV1
       errName = "google-sign";
       // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
       var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
-      var body = exchangeWrap(url, HttpMethod.POST, 3, errName, errorCodes);
-      if (body != null && body.containsKey("email"))
+      var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+      if (body != null)
       {
         if (body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId()))
         {
-          email = (String) body.get("email");
-          firstName = (String) body.get("given_name");
-          lastName = (String) body.get("family_name");
+          if (body.containsKey("email"))
+          {
+            email = (String) body.get("email");
+            firstName = (String) body.getOrDefault("given_name", null);
+            lastName = (String) body.getOrDefault("family_name", null);
+          }
+          else
+            errorCodes.add(errName + "-did-not-provide-email");
         }
         else
           errorCodes.add(errName + "-fake-detected");
@@ -353,29 +358,34 @@ public class NevisControllerV1
     }
     else if (FACEBOOK == thirdParty)
     {
-      errName = "facebook-sign";
-
+      errName = "facebook-debug";
+      var facebookAppId = prop.getThirdPartyAuth().getFacebookAppId();
       // https://developers.facebook.com/docs/facebook-login/access-tokens#apptokens
       // https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
       var url = String.format("https://graph.facebook.com/debug_token?input_token=%s&access_token=%s|%s",
-              req.identityCheckData, prop.getThirdPartyAuth().getFacebookAppId(), prop.getThirdPartyAuth().getFacebookAppSecret());
+              req.identityCheckData, facebookAppId, prop.getThirdPartyAuth().getFacebookAppSecret());
       var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
-      if (body != null)
+      var debug = (Map<String, Object>) body.get("data");
+      if (debug.containsKey("app_id")
+              && debug.get("app_id").equals(facebookAppId))
       {
-        var debug = (Map<String, Object>) body.get("data");
-        if (debug.get("app_id").equals(prop.getThirdPartyAuth().getFacebookAppId())
-                && debug.get("is_valid").equals(true))
+        errName = "facebook-api";
+        url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s", req.identityCheckData);
+        body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+        if (body != null)
         {
-          url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s", req.identityCheckData);
-          body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
-          if (body != null && body.containsKey("email"))
+          if (body.containsKey("email"))
           {
             email = (String) body.get("email");
-            firstName = (String) body.get("first_name");
-            lastName = (String) body.get("last_name");
+            firstName = (String) body.getOrDefault("first_name", null);
+            lastName = (String) body.getOrDefault("last_name", null);
           }
+          else
+            errorCodes.add(errName + "-did-not-provide-email");
         }
       }
+      else
+        errorCodes.add(errName + "-fake-detected");
     }
 
 
