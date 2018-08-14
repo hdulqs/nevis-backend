@@ -336,14 +336,16 @@ public class NevisControllerV1
     if (GOOGLE == thirdParty)
     {
       errName = "google-sign";
+      var googleClientId = prop.getThirdPartyAuth().getGoogleClientId();
+
       // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
       var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
       var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
       if (body != null)
       {
         if (body.containsKey("aud") && body.containsKey("email_verified")
-                && body.get("aud").equals(prop.getThirdPartyAuth().getGoogleClientId())
-                && body.get("email_verified").equals("true"))
+                && body.get("aud").equals(googleClientId)     // ...you still need to check that the aud claim contains one of your app's client IDs. If it does, then the token is both valid and intended for your client
+                && body.get("email_verified").equals("true")) // just in case
         {
           if (body.containsKey("email"))
           {
@@ -362,18 +364,20 @@ public class NevisControllerV1
     {
       errName = "facebook-debug";
       var facebookAppId = prop.getThirdPartyAuth().getFacebookAppId();
+
       // https://developers.facebook.com/docs/facebook-login/access-tokens#apptokens
       // https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
       var url = String.format("https://graph.facebook.com/debug_token?input_token=%s&access_token=%s|%s",
               req.identityCheckData, facebookAppId, prop.getThirdPartyAuth().getFacebookAppSecret());
       var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
-      var debug = (Map<String, Object>) body.get("data");
+      var debug = (Map<String, Object>) body.get("data"); // https://developers.facebook.com/docs/graph-api/reference/debug_token
       if (debug.containsKey("app_id") && debug.containsKey("is_valid")
-              && debug.get("app_id").equals(facebookAppId)
-              && debug.get("is_valid").equals(true))
+              && debug.get("app_id").equals(facebookAppId) // The ID of the application this access token is for
+              && debug.get("is_valid").equals(true))       // Whether the access token is still valid or not
       {
         errName = "facebook-api";
-        url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s", req.identityCheckData);
+        url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s",
+                req.identityCheckData);
         body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
         if (body != null)
         {
