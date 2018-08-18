@@ -67,6 +67,14 @@ public class NevisAuthorizationServerConfigurer extends AuthorizationServerConfi
     configurer
             .inMemory() // in Memory or in JDBC
 
+            .withClient(prop.getoAuth2ClientUnlimited().getId())
+            .secret(prop.getoAuth2ClientUnlimited().getPassword())
+            .scopes("all")
+            .authorizedGrantTypes("password", "refresh_token")
+            .accessTokenValiditySeconds(0)
+
+            .and()
+
             .withClient(prop.getOauth2ClientTrusted().getId())
             .secret(prop.getOauth2ClientTrusted().getPassword())
             .scopes("all")

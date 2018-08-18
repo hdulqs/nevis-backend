@@ -41,6 +41,9 @@ public class NevisConfigProperties implements InitializingBean
   private ScheduledTaskMailing scheduledTaskMailing;
 
   @NotNull
+  private OAuth2ClientUnlimited oAuth2ClientUnlimited;
+
+  @NotNull
   private OAuth2ClientTrusted oauth2ClientTrusted;
 
   @NotNull
@@ -499,6 +502,47 @@ public class NevisConfigProperties implements InitializingBean
     }
   }
 
+  public static class OAuth2ClientUnlimited
+  {
+    @NotBlank
+    private String id;
+
+    @NotBlank
+    private String password;
+
+    private int tokenValiditySeconds = 0; // unlimite
+
+    public String getId()
+    {
+      return id;
+    }
+
+    public void setId(String id)
+    {
+      this.id = id;
+    }
+
+    public String getPassword()
+    {
+      return password;
+    }
+
+    public void setPassword(String password)
+    {
+      this.password = password;
+    }
+
+    public int getTokenValiditySeconds()
+    {
+      return tokenValiditySeconds;
+    }
+
+    public void setTokenValiditySeconds(int tokenValiditySeconds)
+    {
+      this.tokenValiditySeconds = tokenValiditySeconds;
+    }
+  }
+
   public static class OAuth2ClientTrusted
   {
     @NotBlank
@@ -659,6 +703,16 @@ public class NevisConfigProperties implements InitializingBean
   public void setScheduledTaskMailing(ScheduledTaskMailing scheduledTaskMailing)
   {
     this.scheduledTaskMailing = scheduledTaskMailing;
+  }
+
+  public OAuth2ClientUnlimited getoAuth2ClientUnlimited()
+  {
+    return oAuth2ClientUnlimited;
+  }
+
+  public void setoAuth2ClientUnlimited(OAuth2ClientUnlimited oAuth2ClientUnlimited)
+  {
+    this.oAuth2ClientUnlimited = oAuth2ClientUnlimited;
   }
 
   public OAuth2ClientTrusted getOauth2ClientTrusted()
