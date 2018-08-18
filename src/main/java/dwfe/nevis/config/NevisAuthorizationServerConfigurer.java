@@ -88,6 +88,7 @@ public class NevisAuthorizationServerConfigurer extends AuthorizationServerConfi
             .scopes("all")
             .authorizedGrantTypes("password", "refresh_token")
             .accessTokenValiditySeconds(prop.getOauth2ClientUntrusted().getTokenValiditySeconds())
+            .refreshTokenValiditySeconds(30)
     ;
   }
 }

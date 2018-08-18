@@ -289,17 +289,17 @@ public class NevisUtil
 
   public static NevisAccountUsernameType getUsernameTypeFromStr(String value)
   {
-    NevisAccountUsernameType result = null;
+    NevisAccountUsernameType usernameType = null;
 
     if (value != null && !value.isEmpty())
       try
       {
-        result = NevisAccountUsernameType.valueOf(value);
+        usernameType = NevisAccountUsernameType.valueOf(value);
       }
       catch (IllegalArgumentException ignored)
       {
       }
-    return result;
+    return usernameType;
   }
 
   public static String nullableValueToStrResp(String field, Object value)

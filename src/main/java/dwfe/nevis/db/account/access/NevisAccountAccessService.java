@@ -48,8 +48,8 @@ public class NevisAccountAccessService implements UserDetailsService
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
   {
-    // If you need to define a table where stored an username,
-    // then, when sign-in, you need to pass an additional parameter,
+    // If you need to define a table where stored an Username,
+    // then, when Sign-in, you need to pass an additional parameter,
     // for example, this assumes that the parameter is named 'usernameType'
     var request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     var usernameType = getUsernameTypeFromStr(request.getParameter("usernameType"));
