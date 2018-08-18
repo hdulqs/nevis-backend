@@ -510,7 +510,8 @@ public class NevisConfigProperties implements InitializingBean
     @NotBlank
     private String password;
 
-    private int tokenValiditySeconds = 0; // unlimite
+    private int accessTokenValiditySeconds = 0;  // unlimite
+    private int refreshTokenValiditySeconds = 1; // 1 sec.
 
     public String getId()
     {
@@ -532,14 +533,24 @@ public class NevisConfigProperties implements InitializingBean
       this.password = password;
     }
 
-    public int getTokenValiditySeconds()
+    public int getAccessTokenValiditySeconds()
     {
-      return tokenValiditySeconds;
+      return accessTokenValiditySeconds;
     }
 
-    public void setTokenValiditySeconds(int tokenValiditySeconds)
+    public void setAccessTokenValiditySeconds(int accessTokenValiditySeconds)
     {
-      this.tokenValiditySeconds = tokenValiditySeconds;
+      this.accessTokenValiditySeconds = accessTokenValiditySeconds;
+    }
+
+    public int getRefreshTokenValiditySeconds()
+    {
+      return refreshTokenValiditySeconds;
+    }
+
+    public void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds)
+    {
+      this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
   }
 
@@ -551,7 +562,8 @@ public class NevisConfigProperties implements InitializingBean
     @NotBlank
     private String password;
 
-    private int tokenValiditySeconds = 60 * 60 * 24 * 20; // 20 days
+    private int accessTokenValiditySeconds = 60 * 60 * 24 * 20;   // 20 days
+    private int refreshTokenValiditySeconds = 60 * 60 * 24 * 340; // 340 days
 
     public String getId()
     {
@@ -573,14 +585,24 @@ public class NevisConfigProperties implements InitializingBean
       this.password = password;
     }
 
-    public int getTokenValiditySeconds()
+    public int getAccessTokenValiditySeconds()
     {
-      return tokenValiditySeconds;
+      return accessTokenValiditySeconds;
     }
 
-    public void setTokenValiditySeconds(int tokenValiditySeconds)
+    public void setAccessTokenValiditySeconds(int accessTokenValiditySeconds)
     {
-      this.tokenValiditySeconds = tokenValiditySeconds;
+      this.accessTokenValiditySeconds = accessTokenValiditySeconds;
+    }
+
+    public int getRefreshTokenValiditySeconds()
+    {
+      return refreshTokenValiditySeconds;
+    }
+
+    public void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds)
+    {
+      this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
   }
 
@@ -592,7 +614,8 @@ public class NevisConfigProperties implements InitializingBean
     @NotBlank
     private String password;
 
-    private int tokenValiditySeconds = 60 * 3; // 3 minutes
+    private int accessTokenValiditySeconds = 60 * 3; // 3 min.
+    private int refreshTokenValiditySeconds = 1;     // 1 sec.
 
     public String getId()
     {
@@ -614,14 +637,24 @@ public class NevisConfigProperties implements InitializingBean
       this.password = password;
     }
 
-    public int getTokenValiditySeconds()
+    public int getAccessTokenValiditySeconds()
     {
-      return tokenValiditySeconds;
+      return accessTokenValiditySeconds;
     }
 
-    public void setTokenValiditySeconds(int tokenValiditySeconds)
+    public void setAccessTokenValiditySeconds(int accessTokenValiditySeconds)
     {
-      this.tokenValiditySeconds = tokenValiditySeconds;
+      this.accessTokenValiditySeconds = accessTokenValiditySeconds;
+    }
+
+    public int getRefreshTokenValiditySeconds()
+    {
+      return refreshTokenValiditySeconds;
+    }
+
+    public void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds)
+    {
+      this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
   }
 
