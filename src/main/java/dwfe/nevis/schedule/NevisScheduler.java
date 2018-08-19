@@ -135,17 +135,19 @@ public class NevisScheduler
 
     if (WELCOME_ONLY.equals(type))
     {
-      result.put(subjKey, "Welcome, when password was passed");
+      result.put(subjKey, "Welcome");
+      context.setVariable("account_link", frontendHost + prop.getFrontend().getResourceAccount());
     }
     else if (WELCOME_PASSWORD.equals(type))
     {
-      result.put(subjKey, "Welcome, when password was not passed");
+      result.put(subjKey, "Welcome");
       context.setVariable(dataKey, data);
+      context.setVariable("account_link", frontendHost + prop.getFrontend().getResourceAccount());
     }
     else if (EMAIL_CONFIRM.equals(type))
     {
       var resourceConfirmEmail = prop.getFrontend().getResourceEmailConfirm();
-      result.put(subjKey, "Confirm email");
+      result.put(subjKey, "Email confirm");
       context.setVariable(dataKey, frontendHost + resourceConfirmEmail + "/" + data);
     }
     else if (PASSWORD_WAS_CHANGED.equals(type))
@@ -155,7 +157,7 @@ public class NevisScheduler
     else if (PASSWORD_RESET_CONFIRM.equals(type))
     {
       var resourceConfirmResetPass = prop.getFrontend().getResourcePasswordReset();
-      result.put(subjKey, "Reset password");
+      result.put(subjKey, "Password reset");
       context.setVariable(dataKey, frontendHost + resourceConfirmResetPass + "/" + data);
     }
     result.put(messageKey, templateEngine.process("mailing_" + type, context));
