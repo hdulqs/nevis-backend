@@ -33,14 +33,14 @@
 	<key>32E9A6E4-7BB2-47E6-B623-DEC7F91F4361</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 1538}, {874, 662}}</string>
+		<string>{{0, 1738}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
 	<key>35CDA0EB-F33A-4B9A-8E31-5EA178779CBF</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 921}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>

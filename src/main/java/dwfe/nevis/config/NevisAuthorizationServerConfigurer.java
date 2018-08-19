@@ -67,12 +67,12 @@ public class NevisAuthorizationServerConfigurer extends AuthorizationServerConfi
     configurer
             .inMemory() // in Memory or in JDBC
 
-            .withClient(prop.getoAuth2ClientUnlimited().getId())
-            .secret(prop.getoAuth2ClientUnlimited().getPassword())
+            .withClient(prop.getOauth2ClientUntrusted().getId())
+            .secret(prop.getOauth2ClientUntrusted().getPassword())
             .scopes("all")
             .authorizedGrantTypes("password", "refresh_token")
-            .accessTokenValiditySeconds(prop.getoAuth2ClientUnlimited().getAccessTokenValiditySeconds())
-            .refreshTokenValiditySeconds(prop.getoAuth2ClientUnlimited().getRefreshTokenValiditySeconds())
+            .accessTokenValiditySeconds(prop.getOauth2ClientUntrusted().getAccessTokenValiditySeconds())
+            .refreshTokenValiditySeconds(prop.getOauth2ClientUntrusted().getRefreshTokenValiditySeconds())
 
             .and()
 
@@ -85,12 +85,12 @@ public class NevisAuthorizationServerConfigurer extends AuthorizationServerConfi
 
             .and()
 
-            .withClient(prop.getOauth2ClientUntrusted().getId())
-            .secret(prop.getOauth2ClientUntrusted().getPassword())
+            .withClient(prop.getoAuth2ClientUnlimited().getId())
+            .secret(prop.getoAuth2ClientUnlimited().getPassword())
             .scopes("all")
             .authorizedGrantTypes("password", "refresh_token")
-            .accessTokenValiditySeconds(prop.getOauth2ClientUntrusted().getAccessTokenValiditySeconds())
-            .refreshTokenValiditySeconds(prop.getOauth2ClientUntrusted().getRefreshTokenValiditySeconds())
+            .accessTokenValiditySeconds(prop.getoAuth2ClientUnlimited().getAccessTokenValiditySeconds())
+            .refreshTokenValiditySeconds(prop.getoAuth2ClientUnlimited().getRefreshTokenValiditySeconds())
     ;
   }
 }

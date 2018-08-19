@@ -226,13 +226,21 @@ public class NevisTestUtil
     //2. Change Token
     var old_access_token = auth.access_token;
     var old_refresh_token = auth.refresh_token;
-    tokenProcess(REFRESH, auth, 200);
-    assertNotEquals(old_access_token, auth.access_token);
-    assertEquals(old_refresh_token, auth.refresh_token);
+    var expectedStatus = auth.client.clientname.equals(prop.getOauth2ClientTrusted().getId()) ? 200 : 401;
+    tokenProcess(REFRESH, auth, expectedStatus);
+    if (expectedStatus == 200)
+    {
+      assertNotEquals(old_access_token, auth.access_token);
+      assertEquals(old_refresh_token, auth.refresh_token);
 
-    //3. Resource accessing: old/new token
-    resourceAccessingProcess(old_access_token, auth.authorityLevel, BAD_ACCESS_TOKEN);
-    resourceAccessingProcess(auth.access_token, auth.authorityLevel, USUAL);
+      //3. Resource accessing: old/new token
+      resourceAccessingProcess(old_access_token, auth.authorityLevel, BAD_ACCESS_TOKEN);
+      resourceAccessingProcess(auth.access_token, auth.authorityLevel, USUAL);
+    }
+    else
+    {
+      resourceAccessingProcess(auth.access_token, auth.authorityLevel, BAD_ACCESS_TOKEN);
+    }
   }
 
   public void resourceAccessingProcess(String access_token, NevisTestAuthorityLevel authorityLevel, NevisTestResourceAccessingType resourceAccessingType)
@@ -272,8 +280,12 @@ public class NevisTestUtil
   private void signOutProcess(NevisTestAuth auth)
   {
     log.info("sign out");
-    var body = responseAfterGETrequest(prop.getResource().getSignOut(), auth.access_token, 200);
-    assertNotEquals(null, body);
-    assertEquals(true, body.get("success"));
+    var expectedStatus = auth.client.clientname.equals(prop.getOauth2ClientTrusted().getId()) ? 200 : 401;
+    var body = responseAfterGETrequest(prop.getResource().getSignOut(), auth.access_token, expectedStatus);
+    if (expectedStatus == 200)
+    {
+      assertNotEquals(null, body);
+      assertEquals(true, body.get("success"));
+    }
   }
 }

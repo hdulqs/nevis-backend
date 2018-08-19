@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 
 import static dwfe.nevis.util.NevisUtil.formatMillisecondsToReadableString;
 
@@ -41,13 +42,11 @@ public class NevisConfigProperties implements InitializingBean
   private ScheduledTaskMailing scheduledTaskMailing;
 
   @NotNull
-  private OAuth2ClientUnlimited oAuth2ClientUnlimited;
-
+  private OAuth2ClientUntrusted oauth2ClientUntrusted;
   @NotNull
   private OAuth2ClientTrusted oauth2ClientTrusted;
-
   @NotNull
-  private OAuth2ClientUntrusted oauth2ClientUntrusted;
+  private OAuth2ClientUnlimited oAuth2ClientUnlimited;
 
   @Override
   public void afterPropertiesSet() throws Exception
@@ -502,16 +501,19 @@ public class NevisConfigProperties implements InitializingBean
     }
   }
 
-  public static class OAuth2ClientUnlimited
+  public static class OAuth2ClientUntrusted
   {
     @NotBlank
     private String id;
-
     @NotBlank
     private String password;
 
-    private int accessTokenValiditySeconds = 0;  // unlimite
-    private int refreshTokenValiditySeconds = 1; // 1 sec.
+    @NotNull
+    @PositiveOrZero
+    private Integer accessTokenValiditySeconds = 60 * 3; // 3 min.
+    @NotNull
+    @PositiveOrZero
+    private Integer refreshTokenValiditySeconds = 1;     // 1 sec.
 
     public String getId()
     {
@@ -533,22 +535,22 @@ public class NevisConfigProperties implements InitializingBean
       this.password = password;
     }
 
-    public int getAccessTokenValiditySeconds()
+    public Integer getAccessTokenValiditySeconds()
     {
       return accessTokenValiditySeconds;
     }
 
-    public void setAccessTokenValiditySeconds(int accessTokenValiditySeconds)
+    public void setAccessTokenValiditySeconds(Integer accessTokenValiditySeconds)
     {
       this.accessTokenValiditySeconds = accessTokenValiditySeconds;
     }
 
-    public int getRefreshTokenValiditySeconds()
+    public Integer getRefreshTokenValiditySeconds()
     {
       return refreshTokenValiditySeconds;
     }
 
-    public void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds)
+    public void setRefreshTokenValiditySeconds(Integer refreshTokenValiditySeconds)
     {
       this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
@@ -558,12 +560,15 @@ public class NevisConfigProperties implements InitializingBean
   {
     @NotBlank
     private String id;
-
     @NotBlank
     private String password;
 
-    private int accessTokenValiditySeconds = 60 * 60 * 24 * 20;   // 20 days
-    private int refreshTokenValiditySeconds = 60 * 60 * 24 * 340; // 340 days
+    @NotNull
+    @PositiveOrZero
+    private Integer accessTokenValiditySeconds = 60 * 60 * 24 * 20;   // 20 days
+    @NotNull
+    @PositiveOrZero
+    private Integer refreshTokenValiditySeconds = 60 * 60 * 24 * 340; // 340 days
 
     public String getId()
     {
@@ -585,37 +590,41 @@ public class NevisConfigProperties implements InitializingBean
       this.password = password;
     }
 
-    public int getAccessTokenValiditySeconds()
+    public Integer getAccessTokenValiditySeconds()
     {
       return accessTokenValiditySeconds;
     }
 
-    public void setAccessTokenValiditySeconds(int accessTokenValiditySeconds)
+    public void setAccessTokenValiditySeconds(Integer accessTokenValiditySeconds)
     {
       this.accessTokenValiditySeconds = accessTokenValiditySeconds;
     }
 
-    public int getRefreshTokenValiditySeconds()
+    public Integer getRefreshTokenValiditySeconds()
     {
       return refreshTokenValiditySeconds;
     }
 
-    public void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds)
+    public void setRefreshTokenValiditySeconds(Integer refreshTokenValiditySeconds)
     {
       this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
   }
 
-  public static class OAuth2ClientUntrusted
+  public static class OAuth2ClientUnlimited
   {
     @NotBlank
     private String id;
-
     @NotBlank
     private String password;
 
-    private int accessTokenValiditySeconds = 60 * 3; // 3 min.
-    private int refreshTokenValiditySeconds = 1;     // 1 sec.
+    @NotNull
+    @PositiveOrZero
+    private Integer accessTokenValiditySeconds = 0;  // unlimite
+
+    @NotNull
+    @PositiveOrZero
+    private Integer refreshTokenValiditySeconds = 1; // 1 sec.
 
     public String getId()
     {
@@ -637,22 +646,22 @@ public class NevisConfigProperties implements InitializingBean
       this.password = password;
     }
 
-    public int getAccessTokenValiditySeconds()
+    public Integer getAccessTokenValiditySeconds()
     {
       return accessTokenValiditySeconds;
     }
 
-    public void setAccessTokenValiditySeconds(int accessTokenValiditySeconds)
+    public void setAccessTokenValiditySeconds(Integer accessTokenValiditySeconds)
     {
       this.accessTokenValiditySeconds = accessTokenValiditySeconds;
     }
 
-    public int getRefreshTokenValiditySeconds()
+    public Integer getRefreshTokenValiditySeconds()
     {
       return refreshTokenValiditySeconds;
     }
 
-    public void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds)
+    public void setRefreshTokenValiditySeconds(Integer refreshTokenValiditySeconds)
     {
       this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
@@ -738,14 +747,14 @@ public class NevisConfigProperties implements InitializingBean
     this.scheduledTaskMailing = scheduledTaskMailing;
   }
 
-  public OAuth2ClientUnlimited getoAuth2ClientUnlimited()
+  public OAuth2ClientUntrusted getOauth2ClientUntrusted()
   {
-    return oAuth2ClientUnlimited;
+    return oauth2ClientUntrusted;
   }
 
-  public void setoAuth2ClientUnlimited(OAuth2ClientUnlimited oAuth2ClientUnlimited)
+  public void setOauth2ClientUntrusted(OAuth2ClientUntrusted oauth2ClientUntrusted)
   {
-    this.oAuth2ClientUnlimited = oAuth2ClientUnlimited;
+    this.oauth2ClientUntrusted = oauth2ClientUntrusted;
   }
 
   public OAuth2ClientTrusted getOauth2ClientTrusted()
@@ -758,14 +767,14 @@ public class NevisConfigProperties implements InitializingBean
     this.oauth2ClientTrusted = oauth2ClientTrusted;
   }
 
-  public OAuth2ClientUntrusted getOauth2ClientUntrusted()
+  public OAuth2ClientUnlimited getoAuth2ClientUnlimited()
   {
-    return oauth2ClientUntrusted;
+    return oAuth2ClientUnlimited;
   }
 
-  public void setOauth2ClientUntrusted(OAuth2ClientUntrusted oauth2ClientUntrusted)
+  public void setoAuth2ClientUnlimited(OAuth2ClientUnlimited oAuth2ClientUnlimited)
   {
-    this.oauth2ClientUntrusted = oauth2ClientUntrusted;
+    this.oAuth2ClientUnlimited = oAuth2ClientUnlimited;
   }
 
   @Override
@@ -778,12 +787,26 @@ public class NevisConfigProperties implements InitializingBean
                     "|                                                     %n" +
                     "| API Root                          %s%n" +
                     "|                                                     %n" +
+                    "|                                                     %n" +
+                    "| OAuth2 Clients tokens validity (seconds):           %n" +
+                    "|   Untrusted                                         %n" +
+                    "|     access_token                  %s%n" +
+                    "|     refresh_token                 %s%n" +
+                    "|   Trusted                                           %n" +
+                    "|     access_token                  %s%n" +
+                    "|     refresh_token                 %s%n" +
+                    "|   Unlimited                                         %n" +
+                    "|     access_token                  %s%n" +
+                    "|     refresh_token                 %s%n" +
+                    "|                                                     %n" +
+                    "|                                                     %n" +
                     "| Scheduled Task - Mailing:                           %n" +
-                    "|    initial delay                  %s%n" +
-                    "|    collect from DB interval       %s%n" +
-                    "|    send interval                  %s%n" +
-                    "|    max attempts to send if error  %s%n" +
-                    "|    timeout for duplicate request  %s%n" +
+                    "|   initial delay                   %s%n" +
+                    "|   collect from DB interval        %s%n" +
+                    "|   send interval                   %s%n" +
+                    "|   max attempts to send if error   %s%n" +
+                    "|   timeout for duplicate request   %s%n" +
+                    "|                                                     %n" +
                     "|                                                     %n" +
                     "| RESOURCES                                           %n" +
                     "|                                                     %n" +
@@ -823,13 +846,25 @@ public class NevisConfigProperties implements InitializingBean
                     "|      %s%n" +
                     "|      %s%n" +
                     "|                                                     %n" +
-                    "| Frontend                                            %n" +
-                    "|    host                   %s%n" +
-                    "|    resources for:                                   %n" +
-                    "|      /password-reset-confirm  %s%n" +
-                    "|      /email-confirm           %s%n" +
+                    "|                                                     %n" +
+                    "| FRONTEND                                            %n" +
+                    "|                                                     %n" +
+                    "|   host                       %s%n" +
+                    "|   resources for:                                    %n" +
+                    "|     /password-reset-confirm  %s%n" +
+                    "|     /email-confirm           %s%n" +
                     "|_____________________________________________________%n",
             apiRoot,
+
+            // OAuth2 Clients tokens validity
+            oauth2ClientUntrusted.accessTokenValiditySeconds,
+            oauth2ClientUntrusted.refreshTokenValiditySeconds,
+            oauth2ClientTrusted.accessTokenValiditySeconds,
+            oauth2ClientTrusted.refreshTokenValiditySeconds,
+            oAuth2ClientUnlimited.accessTokenValiditySeconds,
+            oAuth2ClientUnlimited.refreshTokenValiditySeconds,
+
+            // Scheduled Task - Mailing
             formatMillisecondsToReadableString(scheduledTaskMailing.initialDelay),
             formatMillisecondsToReadableString(scheduledTaskMailing.collectFromDbInterval),
             formatMillisecondsToReadableString(scheduledTaskMailing.sendInterval),
