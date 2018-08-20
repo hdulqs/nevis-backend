@@ -5,7 +5,7 @@
 	<key>0E846F5E-910C-46E2-8B05-36D86F1CB921</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 4114}, {1195, 662}}</string>
+		<string>{{0, 4238}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -33,14 +33,21 @@
 	<key>32E9A6E4-7BB2-47E6-B623-DEC7F91F4361</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 1738}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
 	<key>35CDA0EB-F33A-4B9A-8E31-5EA178779CBF</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 921}, {1195, 662}}</string>
+		<string>{{0, 0}, {1195, 662}}</string>
+		<key>Zoom Factor</key>
+		<real>1</real>
+	</dict>
+	<key>468FD60F-E041-44CD-AB9D-9D4CDBDD4184</key>
+	<dict>
+		<key>Visible Rect</key>
+		<string>{{0, 0}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -88,6 +95,10 @@
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
+	<key>Expanded Ideaspaces For Section 00000000-0000-0000-0000-0000000TRASH</key>
+	<array/>
+	<key>Expanded Ideaspaces For Section 00000000-0000-0000-0000-00000ARCHIVE</key>
+	<array/>
 	<key>Expanded Ideaspaces For Section 5A3A430D-1260-44EB-A991-F8E76C236F17</key>
 	<array>
 		<string>0E846F5E-910C-46E2-8B05-36D86F1CB921</string>
@@ -95,9 +106,20 @@
 	</array>
 	<key>Expanded Sections</key>
 	<array/>
+	<key>FEF52C9B-2794-4368-A346-FF49537C98BA</key>
+	<dict>
+		<key>Visible Rect</key>
+		<string>{{0, 0}, {1195, 662}}</string>
+		<key>Zoom Factor</key>
+		<real>1</real>
+	</dict>
+	<key>Last Viewed Ideaspaces For Section 00000000-0000-0000-0000-0000000TRASH</key>
+	<array/>
+	<key>Last Viewed Ideaspaces For Section 00000000-0000-0000-0000-00000ARCHIVE</key>
+	<array/>
 	<key>Last Viewed Ideaspaces For Section 5A3A430D-1260-44EB-A991-F8E76C236F17</key>
 	<array>
-		<string>DA4F1772-0D6A-4CC2-8B65-06697726DC5F</string>
+		<string>FEF52C9B-2794-4368-A346-FF49537C98BA</string>
 	</array>
 	<key>Last Viewed Section</key>
 	<array>
@@ -110,7 +132,11 @@
 	<key>Organizer Width</key>
 	<integer>170</integer>
 	<key>Primary Asset UUID Last Viewed</key>
-	<string>DA4F1772-0D6A-4CC2-8B65-06697726DC5F</string>
+	<string>FEF52C9B-2794-4368-A346-FF49537C98BA</string>
+	<key>Scroll Position For Section 00000000-0000-0000-0000-0000000TRASH</key>
+	<string>{0, 0}</string>
+	<key>Scroll Position For Section 00000000-0000-0000-0000-00000ARCHIVE</key>
+	<string>{0, 0}</string>
 	<key>Scroll Position For Section 5A3A430D-1260-44EB-A991-F8E76C236F17</key>
 	<string>{0, 0}</string>
 	<key>Secondary View Vertical</key>
