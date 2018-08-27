@@ -160,7 +160,7 @@ public class NevisScheduler
       result.put(subjKey, "Password reset");
       context.setVariable(dataKey, frontendHost + resourceConfirmResetPass + "/" + data);
     }
-    result.put(messageKey, templateEngine.process("mailing_" + type, context));
+    result.put(messageKey, templateEngine.process("nevis_mailing_" + type, context));
     return result;
   }
 }
