@@ -4,8 +4,7 @@ public enum NevisMailingType
 {
   //
   // ATTENTION.
-  // If one of the enumerations is already in use in database table entries,
-  // then CHANGING THE ORDER may cause the logic to malfunction
+  // After you make the changes, be sure to update the ENUM field in the database schema
   //
 
   WELCOME_ONLY,

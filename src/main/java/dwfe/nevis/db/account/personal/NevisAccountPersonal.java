@@ -3,10 +3,7 @@ package dwfe.nevis.db.account.personal;
 import dwfe.nevis.db.other.gender.NevisGender;
 import dwfe.nevis.util.NevisUtil;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -31,6 +28,7 @@ public class NevisAccountPersonal
   private String lastName;
   private Boolean lastNameNonPublic;
 
+  @Enumerated(EnumType.STRING)
   private NevisGender gender;
   private Boolean genderNonPublic;
 

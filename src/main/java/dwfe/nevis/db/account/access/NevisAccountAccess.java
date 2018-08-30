@@ -30,6 +30,7 @@ public class NevisAccountAccess implements UserDetails, CredentialsContainer
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
 
+  @Enumerated(EnumType.STRING)
   private NevisAccountThirdParty thirdParty;
 
   @ManyToMany(fetch = FetchType.EAGER)

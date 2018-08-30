@@ -18,6 +18,7 @@ public class NevisMailing implements Comparable<NevisMailing>
   private LocalDateTime createdOn;
 
   @Id
+  @Enumerated(EnumType.STRING)
   private NevisMailingType type;
 
   @Id

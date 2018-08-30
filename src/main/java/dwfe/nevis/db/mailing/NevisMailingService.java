@@ -42,7 +42,7 @@ public class NevisMailingService
   public Optional<NevisMailing> findLastByTypeAndEmail(NevisMailingType type, String email)
   {
     return repository.findLastByTypeAndEmail(
-            String.valueOf(type.ordinal()),
+            type.toString(), // String.valueOf(type.ordinal()),
             email
     );
   }
@@ -55,7 +55,7 @@ public class NevisMailingService
   public List<NevisMailing> findSentNotEmptyData(NevisMailingType type, String email)
   {
     return repository.findSentNotEmptyData(
-            String.valueOf(type.ordinal()),
+            type.toString(), // String.valueOf(type.ordinal()),
             email
     );
   }
@@ -63,7 +63,7 @@ public class NevisMailingService
   public Optional<NevisMailing> findLastSentNotEmptyData(NevisMailingType type, String email)
   {
     return repository.findLastSentNotEmptyData(
-            String.valueOf(type.ordinal()),
+            type.toString(), // String.valueOf(type.ordinal()),
             email
     );
   }

@@ -18,7 +18,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE nevis_account_access (
   id                      BIGINT(20)                           NOT NULL   AUTO_INCREMENT,
   password                VARCHAR(100)                         NOT NULL,
-  third_party             VARCHAR(20),
+  third_party             ENUM('GOOGLE','FACEBOOK'),
   account_non_expired     TINYINT(1)                           NOT NULL   DEFAULT '1',
   credentials_non_expired TINYINT(1)                           NOT NULL   DEFAULT '1',
   account_non_locked      TINYINT(1)                           NOT NULL   DEFAULT '1',
@@ -112,7 +112,7 @@ CREATE TABLE nevis_account_personal (
   middle_name_non_public   TINYINT(1)                           NOT NULL   DEFAULT '1',
   last_name                VARCHAR(20),
   last_name_non_public     TINYINT(1)                           NOT NULL   DEFAULT '1',
-  gender                   VARCHAR(1),
+  gender                   ENUM('M','F'),
   gender_non_public        TINYINT(1)                           NOT NULL   DEFAULT '1',
   date_of_birth            DATE,
   date_of_birth_non_public TINYINT(1)                           NOT NULL   DEFAULT '1',
@@ -139,7 +139,7 @@ CREATE TABLE nevis_account_personal (
 
 CREATE TABLE nevis_mailing (
   created_on            DATETIME      NOT NULL               DEFAULT CURRENT_TIMESTAMP,
-  `type`                VARCHAR(3)    NOT NULL,
+  `type`                ENUM('WELCOME_ONLY','WELCOME_PASSWORD','PASSWORD_WAS_CHANGED','PASSWORD_RESET_CONFIRM','EMAIL_CONFIRM')    NOT NULL,
   email                 VARCHAR(50)   NOT NULL,
   sent                  TINYINT(1)    NOT NULL,
   max_attempts_reached  TINYINT(1)    NOT NULL,
