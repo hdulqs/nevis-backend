@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dwfe</groupId>
-    <artifactId>nevis</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>dwfe-api</artifactId>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>nevis</name>

@@ -33,7 +33,7 @@
 	<key>32E9A6E4-7BB2-47E6-B623-DEC7F91F4361</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 1738}, {1195, 662}}</string>
+		<string>{{0, 204}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -84,7 +84,7 @@
 	<key>DA4F1772-0D6A-4CC2-8B65-06697726DC5F</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 776}, {1195, 662}}</string>
+		<string>{{0, 336}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -119,7 +119,7 @@
 	<array/>
 	<key>Last Viewed Ideaspaces For Section 5A3A430D-1260-44EB-A991-F8E76C236F17</key>
 	<array>
-		<string>35CDA0EB-F33A-4B9A-8E31-5EA178779CBF</string>
+		<string>7DEC7F41-F4AC-403F-91AE-D4F67809630C</string>
 	</array>
 	<key>Last Viewed Section</key>
 	<array>
@@ -132,7 +132,7 @@
 	<key>Organizer Width</key>
 	<integer>170</integer>
 	<key>Primary Asset UUID Last Viewed</key>
-	<string>35CDA0EB-F33A-4B9A-8E31-5EA178779CBF</string>
+	<string>7DEC7F41-F4AC-403F-91AE-D4F67809630C</string>
 	<key>Scroll Position For Section 00000000-0000-0000-0000-0000000TRASH</key>
 	<string>{0, 0}</string>
 	<key>Scroll Position For Section 00000000-0000-0000-0000-00000ARCHIVE</key>
