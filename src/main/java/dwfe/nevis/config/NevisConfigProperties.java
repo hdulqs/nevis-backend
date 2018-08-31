@@ -57,7 +57,7 @@ public class NevisConfigProperties implements InitializingBean
 
     apiRoot = backendHost + api;
 
-    log.info(toString());
+    log.warn(toString());
   }
 
   public static class Resource
@@ -793,7 +793,7 @@ public class NevisConfigProperties implements InitializingBean
   {
     return String.format("%n%n" +
                     "-====================================================-%n" +
-                    "|                  ::[Nevis server]::                |%n" +
+                    "|                     ::[Nevis]::                    |%n" +
                     "|----------------------------------------------------|%n" +
                     "|                                                     %n" +
                     "| API Root                          %s%n" +
@@ -865,7 +865,7 @@ public class NevisConfigProperties implements InitializingBean
                     "|     password rest            %s%n" +
                     "|     email confirm            %s%n" +
                     "|     account                  %s%n" +
-                    "|_____________________________________________________%n",
+                    "|_____________________________________________________%n%n",
             apiRoot,
 
             // OAuth2 Clients tokens validity
