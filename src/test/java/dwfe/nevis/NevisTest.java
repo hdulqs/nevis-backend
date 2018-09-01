@@ -58,9 +58,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT  // == https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html#boot-features-testing-spring-boot-applications
 )
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NevisAppTest
+public class NevisTest
 {
-  private static final Logger log = LoggerFactory.getLogger(NevisAppTest.class);
+  private static final Logger log = LoggerFactory.getLogger(NevisTest.class);
   private static Set<String> auth_test_access_tokens = new HashSet<>();
 
   @Autowired

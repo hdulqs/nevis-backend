@@ -33,7 +33,7 @@
 	<key>32E9A6E4-7BB2-47E6-B623-DEC7F91F4361</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 204}, {1195, 662}}</string>
+		<string>{{0, 0}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -71,6 +71,13 @@
 	<dict>
 		<key>Visible Rect</key>
 		<string>{{0, 868}, {1195, 662}}</string>
+		<key>Zoom Factor</key>
+		<real>1</real>
+	</dict>
+	<key>CA5C137C-35B8-49F7-B8AB-E0FB6A0B361A</key>
+	<dict>
+		<key>Visible Rect</key>
+		<string>{{0, 0}, {1195, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>

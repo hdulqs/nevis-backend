@@ -1,4 +1,4 @@
-package dwfe.nevis;
+package dwfe;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,12 +13,12 @@ import java.util.TimeZone;
 @SpringBootApplication
 @EnableScheduling
 @PropertySource("classpath:application.properties")
-public class NevisApp
+public class DwfeApp
 {
   private final Environment env;
 
   @Autowired
-  public NevisApp(Environment env)
+  public DwfeApp(Environment env)
   {
     this.env = env;
   }
@@ -32,6 +32,6 @@ public class NevisApp
 
   public static void main(String[] args)
   {
-    SpringApplication.run(NevisApp.class, args);
+    SpringApplication.run(DwfeApp.class, args);
   }
 }

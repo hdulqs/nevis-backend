@@ -3,8 +3,10 @@ package dwfe.nevis.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
@@ -24,8 +26,6 @@ public class NevisConfigProperties implements InitializingBean
 
   @NotBlank
   private String api;
-  @NotBlank
-  private String backendHost;
   private String apiRoot;
 
   private Resource resource = new Resource();
@@ -48,6 +48,14 @@ public class NevisConfigProperties implements InitializingBean
   @NotNull
   private OAuth2ClientUnlimited oAuth2ClientUnlimited;
 
+  private final Environment env;
+
+  @Autowired
+  public NevisConfigProperties(Environment env)
+  {
+    this.env = env;
+  }
+
   @Override
   public void afterPropertiesSet() throws Exception
   {
@@ -55,7 +63,9 @@ public class NevisConfigProperties implements InitializingBean
       scheduledTaskMailing.setTimeoutForDuplicateRequest(
               scheduledTaskMailing.getSendInterval() * scheduledTaskMailing.getMaxAttemptsToSendIfError());
 
-    apiRoot = backendHost + api;
+    var address = env.getProperty("server.address");
+    var port = env.getProperty("server.port");
+    apiRoot = "http://" + address + ":" + port + api;
 
     log.warn(toString());
   }
@@ -686,16 +696,6 @@ public class NevisConfigProperties implements InitializingBean
   public void setApi(String api)
   {
     this.api = api;
-  }
-
-  public String getBackendHost()
-  {
-    return backendHost;
-  }
-
-  public void setBackendHost(String backendHost)
-  {
-    this.backendHost = backendHost;
   }
 
   public String getApiRoot()
