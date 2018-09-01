@@ -136,16 +136,20 @@ public class NevisControllerV1
 
     if (isDefaultPreCheckOk(req.googleResponse, errName, errorCodes))
     {
-      // https://developers.google.com/recaptcha/docs/verify#api-request
-      var url = String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s",
-              prop.getCaptcha().getGoogleSecretKey(), req.googleResponse);
-      var body = exchangeWrap(url, HttpMethod.POST, 3, errName, errorCodes);
-      if (errorCodes.size() == 0)
+      if (prop.getCaptcha() != null && prop.getCaptcha().getGoogleSecretKey() != null)
       {
-        var success = (Boolean) body.get("success");
-        if (!success)
-          errorCodes.add(errName + "-detected-robot");
+        // https://developers.google.com/recaptcha/docs/verify#api-request
+        var url = String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s",
+                prop.getCaptcha().getGoogleSecretKey(), req.googleResponse);
+        var body = exchangeWrap(url, HttpMethod.POST, 3, errName, errorCodes);
+        if (errorCodes.size() == 0)
+        {
+          var success = (Boolean) body.get("success");
+          if (!success)
+            errorCodes.add(errName + "-detected-robot");
+        }
       }
+      else errorCodes.add(errName + "-not-initialized");
     }
     return getResponse(errorCodes);
   }
@@ -324,11 +328,17 @@ public class NevisControllerV1
     String firstName = null;
     String lastName = null;
 
+    var thirdPartyProp = prop.getThirdPartyAuth();
+    if (thirdPartyProp == null)
+    {
+      errorCodes.add("third-party-not-initialized");
+      return getResponse(errorCodes);
+    }
+
     if (!(isDefaultPreCheckOk(req.identityCheckData, req.identityFieldName, errorCodes)
             && isNotNullPreCheckOk(req.thirdParty, req.thirdPartyFieldName, errorCodes)
             && isDefaultPreCheckOk(req.email, req.emailFieldName, errorCodes)))
       return getResponse(errorCodes);
-
 
     //
     // STAGE 1 - Check the fact of Sign-in on the Third-party Authentication Server
@@ -336,63 +346,73 @@ public class NevisControllerV1
     if (GOOGLE == thirdParty)
     {
       errName = "google-sign";
-      var googleClientId = prop.getThirdPartyAuth().getGoogleClientId();
-
-      // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
-      var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
-      var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
-      if (body != null)
+      var googleClientId = thirdPartyProp.getGoogleClientId();
+      if (googleClientId != null)
       {
-        if (body.containsKey("aud") && body.containsKey("email_verified")
-                && body.get("aud").equals(googleClientId)     // ...you still need to check that the aud claim contains one of your app's client IDs. If it does, then the token is both valid and intended for your client
-                && body.get("email_verified").equals("true")) // just in case
+        // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
+        var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
+        var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+        if (body != null)
         {
-          if (body.containsKey("email"))
+          if (body.containsKey("aud") && body.containsKey("email_verified")
+                  && body.get("aud").equals(googleClientId)     // ...you still need to check that the aud claim contains one of your app's client IDs. If it does, then the token is both valid and intended for your client
+                  && body.get("email_verified").equals("true")) // just in case
           {
-            email = (String) body.get("email");
-            firstName = (String) body.getOrDefault("given_name", null);
-            lastName = (String) body.getOrDefault("family_name", null);
+            if (body.containsKey("email"))
+            {
+              email = (String) body.get("email");
+              firstName = (String) body.getOrDefault("given_name", null);
+              lastName = (String) body.getOrDefault("family_name", null);
+            }
+            else
+              errorCodes.add(errName + "-did-not-provide-email");
           }
           else
-            errorCodes.add(errName + "-did-not-provide-email");
+            errorCodes.add(errName + "-fake-detected");
+        }
+      }
+      else
+        errorCodes.add(errName + "-not-initialized");
+    }
+    else if (FACEBOOK == thirdParty)
+    {
+      var facebookAppId = thirdPartyProp.getFacebookAppId();
+      var facebookAppSecret = thirdPartyProp.getFacebookAppSecret();
+      if (facebookAppId != null && facebookAppSecret != null)
+      {
+        errName = "facebook-debug";
+
+        // https://developers.facebook.com/docs/facebook-login/access-tokens#apptokens
+        // https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
+        var url = String.format("https://graph.facebook.com/debug_token?input_token=%s&access_token=%s|%s",
+                req.identityCheckData, facebookAppId, facebookAppSecret);
+        var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+        var debug = (Map<String, Object>) body.get("data"); // https://developers.facebook.com/docs/graph-api/reference/debug_token
+        if (debug.containsKey("app_id") && debug.containsKey("is_valid")
+                && debug.get("app_id").equals(facebookAppId) // The ID of the application this access token is for
+                && debug.get("is_valid").equals(true))       // Whether the access token is still valid or not
+        {
+          errName = "facebook-api";
+          url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s",
+                  req.identityCheckData);
+          body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+          if (body != null)
+          {
+            if (body.containsKey("email"))
+            {
+              email = (String) body.get("email");
+              firstName = (String) body.getOrDefault("first_name", null);
+              lastName = (String) body.getOrDefault("last_name", null);
+            }
+            else
+              errorCodes.add(errName + "-did-not-provide-email");
+          }
         }
         else
           errorCodes.add(errName + "-fake-detected");
       }
-    }
-    else if (FACEBOOK == thirdParty)
-    {
-      errName = "facebook-debug";
-      var facebookAppId = prop.getThirdPartyAuth().getFacebookAppId();
-
-      // https://developers.facebook.com/docs/facebook-login/access-tokens#apptokens
-      // https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
-      var url = String.format("https://graph.facebook.com/debug_token?input_token=%s&access_token=%s|%s",
-              req.identityCheckData, facebookAppId, prop.getThirdPartyAuth().getFacebookAppSecret());
-      var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
-      var debug = (Map<String, Object>) body.get("data"); // https://developers.facebook.com/docs/graph-api/reference/debug_token
-      if (debug.containsKey("app_id") && debug.containsKey("is_valid")
-              && debug.get("app_id").equals(facebookAppId) // The ID of the application this access token is for
-              && debug.get("is_valid").equals(true))       // Whether the access token is still valid or not
-      {
-        errName = "facebook-api";
-        url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s",
-                req.identityCheckData);
-        body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
-        if (body != null)
-        {
-          if (body.containsKey("email"))
-          {
-            email = (String) body.get("email");
-            firstName = (String) body.getOrDefault("first_name", null);
-            lastName = (String) body.getOrDefault("last_name", null);
-          }
-          else
-            errorCodes.add(errName + "-did-not-provide-email");
-        }
-      }
       else
-        errorCodes.add(errName + "-fake-detected");
+        errorCodes.add("facebook-sign-not-initialized");
     }
 
 

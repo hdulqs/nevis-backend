@@ -32,7 +32,6 @@ public class NevisConfigProperties implements InitializingBean
 
   private Captcha captcha;
 
-  @NotNull
   private ThirdPartyAuth thirdPartyAuth;
 
   @NotNull
@@ -372,12 +371,9 @@ public class NevisConfigProperties implements InitializingBean
 
   public static class ThirdPartyAuth
   {
-    @NotBlank
     private String googleClientId;
 
-    @NotBlank
     private String facebookAppId;
-    @NotBlank
     private String facebookAppSecret;
 
     public String getGoogleClientId()
@@ -819,6 +815,12 @@ public class NevisConfigProperties implements InitializingBean
                     "|   timeout for duplicate request   %s%n" +
                     "|                                                     %n" +
                     "|                                                     %n" +
+                    "| Is Third-party initialized?                         %n" +
+                    "|   Google Captcha                  %s%n" +
+                    "|   Google Sign                     %s%n" +
+                    "|   Facebook Sign                   %s%n" +
+                    "|                                                     %n" +
+                    "|                                                     %n" +
                     "| RESOURCES                                           %n" +
                     "|                                                     %n" +
                     "|   Auth:                                             %n" +
@@ -882,6 +884,11 @@ public class NevisConfigProperties implements InitializingBean
             formatMillisecondsToReadableString(scheduledTaskMailing.sendInterval),
             scheduledTaskMailing.maxAttemptsToSendIfError,
             formatMillisecondsToReadableString(scheduledTaskMailing.timeoutForDuplicateRequest),
+
+            // Is Third-party initialized?
+            captcha.googleSecretKey != null,
+            thirdPartyAuth.googleClientId != null,
+            thirdPartyAuth.facebookAppId != null && thirdPartyAuth.facebookAppSecret != null,
 
             // Auth
             resource.signIn,
