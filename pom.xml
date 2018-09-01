@@ -8,8 +8,8 @@
     <version>0.0.1</version>
     <packaging>jar</packaging>
 
-    <name>nevis</name>
-    <description>nevis-backend</description>
+    <name>nevis-backend</name>
+    <description>The Nevis Backend for DWFE application</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
