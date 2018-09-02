@@ -137,7 +137,7 @@ public class DwfeScheduler
     var messageKey = "message";
     var dataKey = "data";
     var context = new Context();
-    var frontendHost = propNevis.getFrontend().getHost();
+    var frontendHost = propDwfe.getFrontend().getHost();
 
     if (WELCOME_ONLY.equals(type))
     {

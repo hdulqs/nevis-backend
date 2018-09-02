@@ -21,6 +21,9 @@ public class DwfeConfigProperties implements InitializingBean
   @NotNull
   private ScheduledTaskMailing scheduledTaskMailing;
 
+  @NotNull
+  private Frontend frontend = new Frontend();
+
   @Override
   public void afterPropertiesSet() throws Exception
   {
@@ -95,6 +98,21 @@ public class DwfeConfigProperties implements InitializingBean
     }
   }
 
+  public static class Frontend
+  {
+    private String host = "http://localhost";
+
+    public String getHost()
+    {
+      return host;
+    }
+
+    public void setHost(String host)
+    {
+      this.host = host;
+    }
+  }
+
 
   public ScheduledTaskMailing getScheduledTaskMailing()
   {
@@ -104,6 +122,16 @@ public class DwfeConfigProperties implements InitializingBean
   public void setScheduledTaskMailing(ScheduledTaskMailing scheduledTaskMailing)
   {
     this.scheduledTaskMailing = scheduledTaskMailing;
+  }
+
+  public Frontend getFrontend()
+  {
+    return frontend;
+  }
+
+  public void setFrontend(Frontend frontend)
+  {
+    this.frontend = frontend;
   }
 
   @Override
@@ -121,6 +149,10 @@ public class DwfeConfigProperties implements InitializingBean
                     "|   max attempts to send if error   %s%n" +
                     "|   timeout for duplicate request   %s%n" +
                     "|                                                     %n" +
+                    "|                                                     %n" +
+                    "| FRONTEND                                            %n" +
+                    "|                                                     %n" +
+                    "|   host          %s%n" +
                     "|_____________________________________________________%n%n",
 
             // Scheduled Task - Mailing
@@ -128,7 +160,10 @@ public class DwfeConfigProperties implements InitializingBean
             formatMillisecondsToReadableString(scheduledTaskMailing.collectFromDbInterval),
             formatMillisecondsToReadableString(scheduledTaskMailing.sendInterval),
             scheduledTaskMailing.maxAttemptsToSendIfError,
-            formatMillisecondsToReadableString(scheduledTaskMailing.timeoutForDuplicateRequest)
+            formatMillisecondsToReadableString(scheduledTaskMailing.timeoutForDuplicateRequest),
+
+            // Frontend
+            frontend.host
     );
   }
 }

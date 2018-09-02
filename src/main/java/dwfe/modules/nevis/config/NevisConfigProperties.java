@@ -400,20 +400,9 @@ public class NevisConfigProperties implements InitializingBean
 
   public static class Frontend
   {
-    private String host = "http://localhost";
     private String resourceEmailConfirm = "/email-confirm";
     private String resourcePasswordReset = "/password-reset";
     private String resourceAccount = "/account";
-
-    public String getHost()
-    {
-      return host;
-    }
-
-    public void setHost(String host)
-    {
-      this.host = host;
-    }
 
     public String getResourceEmailConfirm()
     {
@@ -835,7 +824,6 @@ public class NevisConfigProperties implements InitializingBean
                     "|                                                     %n" +
                     "| FRONTEND                                            %n" +
                     "|                                                     %n" +
-                    "|   host                       %s%n" +
                     "|   resources for:                                    %n" +
                     "|     password rest            %s%n" +
                     "|     email confirm            %s%n" +
@@ -893,7 +881,6 @@ public class NevisConfigProperties implements InitializingBean
             resource.updateAccountPersonal,
 
             // Frontend
-            frontend.host,
             frontend.resourcePasswordReset,
             frontend.resourceEmailConfirm,
             frontend.resourceAccount
