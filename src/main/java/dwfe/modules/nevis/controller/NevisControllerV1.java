@@ -28,14 +28,11 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 
 import static dwfe.db.mailing.DwfeMailingType.*;
 import static dwfe.db.other.DwfeModule.NEVIS;
@@ -49,27 +46,25 @@ import static dwfe.util.DwfeUtil.*;
 @RequestMapping(path = "#{nevisConfigProperties.api}", produces = "application/json; charset=utf-8")
 public class NevisControllerV1
 {
-  private final NevisConfigProperties prop;
-  private final DwfeUtil dwfeUtil;
-  private final NevisUtil nevisUtil;
-  private final RestTemplate restTemplate;
+  private final DwfeUtil utilDwfe;
+  private final NevisUtil utilNevis;
+  private final NevisConfigProperties propNevis;
   private final RestTemplateBuilder restTemplateBuilder;
   private final ConsumerTokenServices tokenServices;
 
+  private final DwfeMailingService mailingService;
   private final NevisAccountAccessService accessService;
   private final NevisAccountEmailService emailService;
   private final NevisAccountPhoneService phoneService;
   private final NevisAccountPersonalService personalService;
-  private final DwfeMailingService mailingService;
   private final NevisCountryService countryService;
 
   @Autowired
-  public NevisControllerV1(NevisConfigProperties prop, DwfeUtil dwfeUtil, NevisUtil nevisUtil, RestTemplateBuilder restTemplateBuilder, ConsumerTokenServices tokenServices, NevisAccountAccessService accessService, NevisAccountEmailService emailService, NevisAccountPhoneService phoneService, NevisAccountPersonalService personalService, DwfeMailingService mailingService, NevisCountryService countryService)
+  public NevisControllerV1(NevisConfigProperties propNevis, DwfeUtil utilDwfe, NevisUtil utilNevis, RestTemplateBuilder restTemplateBuilder, ConsumerTokenServices tokenServices, NevisAccountAccessService accessService, NevisAccountEmailService emailService, NevisAccountPhoneService phoneService, NevisAccountPersonalService personalService, DwfeMailingService mailingService, NevisCountryService countryService)
   {
-    this.prop = prop;
-    this.dwfeUtil = dwfeUtil;
-    this.nevisUtil = nevisUtil;
-    this.restTemplate = restTemplateBuilder.build();
+    this.propNevis = propNevis;
+    this.utilDwfe = utilDwfe;
+    this.utilNevis = utilNevis;
     this.restTemplateBuilder = restTemplateBuilder;
     this.tokenServices = tokenServices;
 
@@ -130,32 +125,6 @@ public class NevisControllerV1
   {
     var errorCodes = new ArrayList<String>();
     canUsePassword(req.password, "password", errorCodes);
-    return getResponse(errorCodes);
-  }
-
-  @PostMapping("#{nevisConfigProperties.resource.googleCaptchaValidate}")
-  public String googleCaptchaValidate(@RequestBody ReqGoogleCaptchaResponse req)
-  {
-    var errorCodes = new ArrayList<String>();
-    var errName = "google-captcha";
-
-    if (isDefaultPreCheckOk(req.googleResponse, errName, errorCodes))
-    {
-      if (prop.getCaptcha() != null && prop.getCaptcha().getGoogleSecretKey() != null)
-      {
-        // https://developers.google.com/recaptcha/docs/verify#api-request
-        var url = String.format("https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s",
-                prop.getCaptcha().getGoogleSecretKey(), req.googleResponse);
-        var body = exchangeWrap(url, HttpMethod.POST, 3, errName, errorCodes);
-        if (errorCodes.size() == 0)
-        {
-          var success = (Boolean) body.get("success");
-          if (!success)
-            errorCodes.add(errName + "-detected-robot");
-        }
-      }
-      else errorCodes.add(errName + "-not-initialized");
-    }
     return getResponse(errorCodes);
   }
 
@@ -333,7 +302,7 @@ public class NevisControllerV1
     String firstName = null;
     String lastName = null;
 
-    var thirdPartyProp = prop.getThirdPartyAuth();
+    var thirdPartyProp = propNevis.getThirdPartyAuth();
     if (thirdPartyProp == null)
     {
       errorCodes.add("third-party-not-initialized");
@@ -356,7 +325,7 @@ public class NevisControllerV1
       {
         // https://developers.google.com/identity/sign-in/web/backend-auth#calling-the-tokeninfo-endpoint
         var url = String.format("https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s", req.identityCheckData);
-        var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+        var body = utilDwfe.exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
         if (body != null)
         {
           if (body.containsKey("aud") && body.containsKey("email_verified")
@@ -391,7 +360,7 @@ public class NevisControllerV1
         // https://developers.facebook.com/docs/facebook-login/access-tokens/debugging-and-error-handling
         var url = String.format("https://graph.facebook.com/debug_token?input_token=%s&access_token=%s|%s",
                 req.identityCheckData, facebookAppId, facebookAppSecret);
-        var body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+        var body = utilDwfe.exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
         var debug = (Map<String, Object>) body.get("data"); // https://developers.facebook.com/docs/graph-api/reference/debug_token
         if (debug.containsKey("app_id") && debug.containsKey("is_valid")
                 && debug.get("app_id").equals(facebookAppId) // The ID of the application this access token is for
@@ -400,7 +369,7 @@ public class NevisControllerV1
           errName = "facebook-api";
           url = String.format("https://graph.facebook.com/me?fields=email,first_name,last_name&access_token=%s",
                   req.identityCheckData);
-          body = exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
+          body = utilDwfe.exchangeWrap(url, HttpMethod.GET, 3, errName, errorCodes);
           if (body != null)
           {
             if (body.containsKey("email"))
@@ -461,7 +430,7 @@ public class NevisControllerV1
     //
     if (errorCodes.size() == 0)
     {
-      var url = nevisUtil.prepareSignInUrl(email, password, EMAIL);
+      var url = utilNevis.prepareSignInUrl(email, password, EMAIL);
 
       var reqSignIn = RequestEntity
               .post(URI.create(url))
@@ -470,8 +439,8 @@ public class NevisControllerV1
 
       var respSignIn = restTemplateBuilder
               .basicAuthorization(
-                      prop.getOauth2ClientTrusted().getId(),
-                      prop.getOauth2ClientTrusted().getPassword())
+                      propNevis.getOauth2ClientTrusted().getId(),
+                      propNevis.getOauth2ClientTrusted().getPassword())
               .build()
               .exchange(reqSignIn, String.class);
 
@@ -530,7 +499,7 @@ public class NevisControllerV1
 
     if (isDefaultPreCheckOk(email, "email", errorCodes)
             && standardEmailCheck(email, "email", errorCodes)
-            && dwfeUtil.isAllowedNewRequestForMailing(NEVIS, type, email, errorCodes))
+            && utilDwfe.isAllowedNewRequestForMailing(NEVIS, type, email, errorCodes))
     {
       var aEmailOpt = emailService.findByValue(email);
       if (aEmailOpt.isPresent())
@@ -619,7 +588,7 @@ public class NevisControllerV1
       var email = aEmail.getValue();
       if (aEmail.isConfirmed())
         errorCodes.add("email-is-already-confirmed");
-      else if (dwfeUtil.isAllowedNewRequestForMailing(NEVIS, type, email, errorCodes))
+      else if (utilDwfe.isAllowedNewRequestForMailing(NEVIS, type, email, errorCodes))
         mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomStrAlphaDigit(40)));
     }
     else errorCodes.add("no-email-associated-with-account");
@@ -1221,63 +1190,10 @@ public class NevisControllerV1
     return dateOfBirth == null ? null : LocalDate.parse(dateOfBirth);
   }
 
-  private Map<String, Object> exchangeWrap(String url, HttpMethod method, long secondsToWait, String errName, List<String> errorCodes)
-  {
-    Map<String, Object> result = null;
-    try
-    {
-      var exchange = new FutureTask<>(() -> restTemplate.exchange(url, method, null, String.class));
-      new Thread(exchange).start();
-      var response = exchange.get(secondsToWait, TimeUnit.SECONDS);
-      if (response.getStatusCodeValue() == 200)
-        result = getMapFromJson(response.getBody());
-      else
-        errorCodes.add(errName + "-error-exchange");
-    }
-    catch (Throwable e)
-    {
-      errorCodes.add(errName + "-error-connection");
-    }
-    return result;
-  }
 
   //-------------------------------------------------------
   // Response
   //
-
-  private static String getResponse(List<String> errorCodes)
-  {
-    if (errorCodes.size() == 0)
-      return "{\"success\": true}";
-    else
-      return getResponseWithErrorCodes(errorCodes);
-  }
-
-  private static String getResponse(List<String> errorCodes, String data)
-  {
-    if (errorCodes.size() == 0)
-      return getResponseSuccessWithData(data);
-    else
-      return getResponseWithErrorCodes(errorCodes);
-  }
-
-  private static String getResponse(List<String> errorCodes, Map<String, Object> data)
-  {
-    if (errorCodes.size() == 0)
-      return getResponseSuccessWithData(getJsonFromObj(data));
-    else
-      return getResponseWithErrorCodes(errorCodes);
-  }
-
-  private static String getResponseSuccessWithData(String data)
-  {
-    return String.format("{\"success\": true, \"data\": %s}", data);
-  }
-
-  private static String getResponseWithErrorCodes(List<String> errorCodes)
-  {
-    return String.format("{\"success\": false, \"error-codes\": %s}", getJsonFromObj(errorCodes));
-  }
 
   private static String respPrepareAccountAccess(NevisAccountAccess aAccess, boolean onPublic)
   {
@@ -1452,21 +1368,6 @@ class ReqPassword
   public void setPassword(String password)
   {
     this.password = password;
-  }
-}
-
-class ReqGoogleCaptchaResponse
-{
-  String googleResponse;
-
-  public String getGoogleResponse()
-  {
-    return googleResponse;
-  }
-
-  public void setGoogleResponse(String googleResponse)
-  {
-    this.googleResponse = googleResponse;
   }
 }
 

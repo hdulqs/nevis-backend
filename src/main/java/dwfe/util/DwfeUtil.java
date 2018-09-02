@@ -8,7 +8,10 @@ import dwfe.db.mailing.DwfeMailingType;
 import dwfe.db.other.DwfeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParserFactory;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -18,18 +21,25 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
 public class DwfeUtil
 {
+  private final RestTemplate restTemplate;
+  private final RestTemplateBuilder restTemplateBuilder;
+
   private final DwfeConfigProperties propDwfe;
   private final DwfeMailingService mailingService;
 
   @Autowired
-  public DwfeUtil(DwfeConfigProperties propDwfe, DwfeMailingService mailingService)
+  public DwfeUtil(RestTemplateBuilder restTemplateBuilder, DwfeConfigProperties propDwfe, DwfeMailingService mailingService)
   {
+    this.restTemplate = restTemplateBuilder.build();
+    this.restTemplateBuilder = restTemplateBuilder;
+
     this.propDwfe = propDwfe;
     this.mailingService = mailingService;
   }
@@ -152,30 +162,8 @@ public class DwfeUtil
 
 
   //-------------------------------------------------------
-  // OTHER
+  // CHECK
   //
-
-  public static String cutStr(String value, int maxLength)
-  {
-    if (value == null)
-      return null;
-    else if (value.length() > maxLength)
-      return value.substring(0, maxLength);
-    else
-      return value;
-  }
-
-  public static String strToUpperCase(String value)
-  {
-    return value == null ? null : value.toUpperCase();
-  }
-
-  public static String nullableValueToStrResp(String field, Object value)
-  {
-    return value == null
-            ? "\"" + field + "\":null"
-            : "\"" + field + "\":\"" + value + "\"";
-  }
 
   public static boolean isDefaultPreCheckOk(String value, String name, List<String> errorCodes)
   {
@@ -211,7 +199,6 @@ public class DwfeUtil
     return errorCodes.size() == 0;
   }
 
-
   public boolean isAllowedNewRequestForMailing(DwfeModule module, DwfeMailingType type, String email, List<String> errorCodes)
   {
     var lastPending = mailingService.findLastByModuleAndTypeAndEmail(module, type, email);
@@ -225,5 +212,91 @@ public class DwfeUtil
         errorCodes.add("delay-between-duplicate-requests");
     }
     return errorCodes.size() == 0;
+  }
+
+
+  //-------------------------------------------------------
+  // EXCHANGE
+  //
+
+  public static String getResponse(List<String> errorCodes)
+  {
+    if (errorCodes.size() == 0)
+      return "{\"success\": true}";
+    else
+      return getResponseWithErrorCodes(errorCodes);
+  }
+
+  public static String getResponse(List<String> errorCodes, String data)
+  {
+    if (errorCodes.size() == 0)
+      return getResponseSuccessWithData(data);
+    else
+      return getResponseWithErrorCodes(errorCodes);
+  }
+
+  public static String getResponse(List<String> errorCodes, Map<String, Object> data)
+  {
+    if (errorCodes.size() == 0)
+      return getResponseSuccessWithData(getJsonFromObj(data));
+    else
+      return getResponseWithErrorCodes(errorCodes);
+  }
+
+  public static String getResponseSuccessWithData(String data)
+  {
+    return String.format("{\"success\": true, \"data\": %s}", data);
+  }
+
+  public static String getResponseWithErrorCodes(List<String> errorCodes)
+  {
+    return String.format("{\"success\": false, \"error-codes\": %s}", getJsonFromObj(errorCodes));
+  }
+
+  public Map<String, Object> exchangeWrap(String url, HttpMethod method, long secondsToWait, String errName, List<String> errorCodes)
+  {
+    Map<String, Object> result = null;
+    try
+    {
+      var exchange = new FutureTask<>(() -> restTemplate.exchange(url, method, null, String.class));
+      new Thread(exchange).start();
+      var response = exchange.get(secondsToWait, TimeUnit.SECONDS);
+      if (response.getStatusCodeValue() == 200)
+        result = getMapFromJson(response.getBody());
+      else
+        errorCodes.add(errName + "-error-exchange");
+    }
+    catch (Throwable e)
+    {
+      errorCodes.add(errName + "-error-connection");
+    }
+    return result;
+  }
+
+
+  //-------------------------------------------------------
+  // OTHER
+  //
+
+  public static String cutStr(String value, int maxLength)
+  {
+    if (value == null)
+      return null;
+    else if (value.length() > maxLength)
+      return value.substring(0, maxLength);
+    else
+      return value;
+  }
+
+  public static String strToUpperCase(String value)
+  {
+    return value == null ? null : value.toUpperCase();
+  }
+
+  public static String nullableValueToStrResp(String field, Object value)
+  {
+    return value == null
+            ? "\"" + field + "\":null"
+            : "\"" + field + "\":\"" + value + "\"";
   }
 }

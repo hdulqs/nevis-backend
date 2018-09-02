@@ -1,5 +1,6 @@
 package dwfe.modules.nevis.test;
 
+import dwfe.config.DwfeConfigProperties;
 import dwfe.modules.nevis.config.NevisConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class NevisTestVariablesForAuthTest
 {
   @Autowired
-  private NevisConfigProperties prop;
+  private DwfeConfigProperties propDwfe;
+  @Autowired
+  private NevisConfigProperties propNevis;
 
   //-------------------------------------------------------
   // RESOURCES
@@ -26,34 +29,36 @@ public class NevisTestVariablesForAuthTest
   {
     Map<String, Map<NevisTestAuthorityLevel, Map<RequestMethod, Map<String, Object>>>> result = new HashMap<>();
 
+    // DWFE
+    result.put(propDwfe.getResource().getGoogleCaptchaValidate(), Map.of(ANY, Map.of(POST, Map.of())));
+
     // Account.Common
-    result.put(prop.getResource().getCanUseUsername(), Map.of(ANY, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getCanUsePassword(), Map.of(ANY, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getGoogleCaptchaValidate(), Map.of(ANY, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getCreateAccount(), Map.of(ANY, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getCanUseUsername(), Map.of(ANY, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getCanUsePassword(), Map.of(ANY, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getCreateAccount(), Map.of(ANY, Map.of(POST, Map.of())));
 
     // Account.Access
-    result.put(prop.getResource().getGetAccountAccess(), Map.of(USER, Map.of(GET, Map.of())));
-    result.put(prop.getResource().getPasswordChange(), Map.of(USER, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getPasswordResetReq(), Map.of(ANY, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getPasswordReset(), Map.of(ANY, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getGetAccountAccess(), Map.of(USER, Map.of(GET, Map.of())));
+    result.put(propNevis.getResource().getPasswordChange(), Map.of(USER, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getPasswordResetReq(), Map.of(ANY, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getPasswordReset(), Map.of(ANY, Map.of(POST, Map.of())));
 
     // Account.Email
-    result.put(prop.getResource().getGetAccountEmail(), Map.of(USER, Map.of(GET, Map.of())));
-    result.put(prop.getResource().getEmailConfirmReq(), Map.of(USER, Map.of(GET, Map.of())));
-    result.put(prop.getResource().getEmailConfirm(), Map.of(ANY, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getEmailChange(), Map.of(USER, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getUpdateAccountEmail(), Map.of(USER, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getGetAccountEmail(), Map.of(USER, Map.of(GET, Map.of())));
+    result.put(propNevis.getResource().getEmailConfirmReq(), Map.of(USER, Map.of(GET, Map.of())));
+    result.put(propNevis.getResource().getEmailConfirm(), Map.of(ANY, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getEmailChange(), Map.of(USER, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getUpdateAccountEmail(), Map.of(USER, Map.of(POST, Map.of())));
 
     // Account.Phone
-    result.put(prop.getResource().getGetAccountPhone(), Map.of(USER, Map.of(GET, Map.of())));
-    result.put(prop.getResource().getPhoneChange(), Map.of(USER, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getUpdateAccountPhone(), Map.of(USER, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getGetAccountPhone(), Map.of(USER, Map.of(GET, Map.of())));
+    result.put(propNevis.getResource().getPhoneChange(), Map.of(USER, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getUpdateAccountPhone(), Map.of(USER, Map.of(POST, Map.of())));
 
     // Account.Personal
-    result.put(prop.getResource().getGetAccountPersonal(), Map.of(USER, Map.of(GET, Map.of())));
-    result.put(prop.getResource().getNicknameChange(), Map.of(USER, Map.of(POST, Map.of())));
-    result.put(prop.getResource().getUpdateAccountPersonal(), Map.of(USER, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getGetAccountPersonal(), Map.of(USER, Map.of(GET, Map.of())));
+    result.put(propNevis.getResource().getNicknameChange(), Map.of(USER, Map.of(POST, Map.of())));
+    result.put(propNevis.getResource().getUpdateAccountPersonal(), Map.of(USER, Map.of(POST, Map.of())));
 
     return result;
   }

@@ -182,7 +182,7 @@ public class NevisTest
   public void _02_03_googleCaptchaValidate()
   {
     logHead("Google Captcha Validate");
-    util.check(POST, propNevis.getResource().getGoogleCaptchaValidate(), auth.getAnonym_accessToken(), checkers_for_googleCaptchaValidate);
+    util.check(POST, propDwfe.getResource().getGoogleCaptchaValidate(), auth.getAnonym_accessToken(), checkers_for_googleCaptchaValidate);
   }
 
   @Test

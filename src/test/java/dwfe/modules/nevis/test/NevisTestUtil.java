@@ -1,5 +1,6 @@
 package dwfe.modules.nevis.test;
 
+import dwfe.config.DwfeConfigProperties;
 import dwfe.modules.nevis.config.NevisConfigProperties;
 import dwfe.modules.nevis.util.NevisUtil;
 import org.slf4j.Logger;
@@ -36,14 +37,17 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 public class NevisTestUtil
 {
   private static final Logger log = LoggerFactory.getLogger(NevisTestUtil.class);
-  private final NevisConfigProperties prop;
+
+  private final DwfeConfigProperties propDwfe;
+  private final NevisConfigProperties propNevis;
   private final NevisUtil nevisUtil;
   private final RestTemplateBuilder rtb;
   private final NevisTestVariablesForAuthTest VARS_FOR_AUTH_TESTS;
 
-  private NevisTestUtil(NevisConfigProperties prop, NevisUtil nevisUtil, RestTemplateBuilder restTemplateBuilder, NevisTestVariablesForAuthTest varsForAuthTest)
+  private NevisTestUtil(DwfeConfigProperties propDwfe, NevisConfigProperties propNevis, NevisUtil nevisUtil, RestTemplateBuilder restTemplateBuilder, NevisTestVariablesForAuthTest varsForAuthTest)
   {
-    this.prop = prop;
+    this.propDwfe = propDwfe;
+    this.propNevis = propNevis;
     this.nevisUtil = nevisUtil;
     this.rtb = restTemplateBuilder;
     this.VARS_FOR_AUTH_TESTS = varsForAuthTest;
@@ -93,7 +97,8 @@ public class NevisTestUtil
 
   private RequestEntity<?> generateGETrequest(String url, String access_token)
   {
-    var reqBuilder = RequestEntity.get(URI.create(prop.getApiRoot() + url));
+    var root = propNevis.getApiRoot();
+    var reqBuilder = RequestEntity.get(URI.create(root + url));
     if (access_token != null)
       reqBuilder.header("Authorization", "Bearer " + access_token);
     return reqBuilder.build();
@@ -101,8 +106,12 @@ public class NevisTestUtil
 
   private RequestEntity<?> generatePOSTrequest(String url, String access_token, Map<String, Object> map)
   {
+    var root = propNevis.getApiRoot();
+    if (url.equals(propDwfe.getResource().getGoogleCaptchaValidate())) //workaround
+      root = propDwfe.getApiRoot();
+
     var reqBuilder = RequestEntity
-            .post(URI.create(prop.getApiRoot() + url))
+            .post(URI.create(root + url))
             .contentType(MediaType.APPLICATION_JSON_UTF8);
     if (access_token != null)
       reqBuilder.header("Authorization", "Bearer " + access_token);
@@ -161,7 +170,7 @@ public class NevisTestUtil
 
   public void tokenProcess(NevisTestAuthType signInType, NevisTestAuth auth, int expectedStatus)
   {
-    var url = prop.getResource().getSignIn();
+    var url = propNevis.getResource().getSignIn();
     if (REFRESH == signInType)
     {
       url = String.format(url + "?grant_type=refresh_token&refresh_token=%s", auth.refresh_token);
@@ -226,7 +235,7 @@ public class NevisTestUtil
     //2. Change Token
     var old_access_token = auth.access_token;
     var old_refresh_token = auth.refresh_token;
-    var expectedStatus = auth.client.clientname.equals(prop.getOauth2ClientTrusted().getId()) ? 200 : 401;
+    var expectedStatus = auth.client.clientname.equals(propNevis.getOauth2ClientTrusted().getId()) ? 200 : 401;
     tokenProcess(REFRESH, auth, expectedStatus);
     if (expectedStatus == 200)
     {
@@ -280,8 +289,8 @@ public class NevisTestUtil
   private void signOutProcess(NevisTestAuth auth)
   {
     log.info("sign out");
-    var expectedStatus = auth.client.clientname.equals(prop.getOauth2ClientTrusted().getId()) ? 200 : 401;
-    var body = responseAfterGETrequest(prop.getResource().getSignOut(), auth.access_token, expectedStatus);
+    var expectedStatus = auth.client.clientname.equals(propNevis.getOauth2ClientTrusted().getId()) ? 200 : 401;
+    var body = responseAfterGETrequest(propNevis.getResource().getSignOut(), auth.access_token, expectedStatus);
     if (expectedStatus == 200)
     {
       assertNotEquals(null, body);

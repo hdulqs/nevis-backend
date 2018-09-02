@@ -28,11 +28,8 @@ public class NevisConfigProperties implements InitializingBean
 
   private Resource resource = new Resource();
 
-  private Captcha captcha;
-
   private ThirdPartyAuth thirdPartyAuth;
 
-  @NotNull
   private Frontend frontend = new Frontend();
 
   @NotNull
@@ -69,7 +66,6 @@ public class NevisConfigProperties implements InitializingBean
     // Account.Common
     private String canUseUsername = "/can-use-username";
     private String canUsePassword = "/can-use-password";
-    private String googleCaptchaValidate = "/google-captcha-validate";
     private String createAccount = "/create-account";
     private String id = "/id/{id}";
     private String deleteAccount = "/delete-account";
@@ -138,16 +134,6 @@ public class NevisConfigProperties implements InitializingBean
     public void setCanUsePassword(String canUsePassword)
     {
       this.canUsePassword = canUsePassword;
-    }
-
-    public String getGoogleCaptchaValidate()
-    {
-      return googleCaptchaValidate;
-    }
-
-    public void setGoogleCaptchaValidate(String googleCaptchaValidate)
-    {
-      this.googleCaptchaValidate = googleCaptchaValidate;
     }
 
     public String getCreateAccount()
@@ -341,22 +327,6 @@ public class NevisConfigProperties implements InitializingBean
     public void setUpdateAccountPersonal(String updateAccountPersonal)
     {
       this.updateAccountPersonal = updateAccountPersonal;
-    }
-  }
-
-  public static class Captcha
-  {
-    @NotBlank
-    private String googleSecretKey;
-
-    public String getGoogleSecretKey()
-    {
-      return googleSecretKey;
-    }
-
-    public void setGoogleSecretKey(String googleSecretKey)
-    {
-      this.googleSecretKey = googleSecretKey;
     }
   }
 
@@ -694,16 +664,6 @@ public class NevisConfigProperties implements InitializingBean
     this.resource = resource;
   }
 
-  public Captcha getCaptcha()
-  {
-    return captcha;
-  }
-
-  public void setCaptcha(Captcha captcha)
-  {
-    this.captcha = captcha;
-  }
-
   public ThirdPartyAuth getThirdPartyAuth()
   {
     return thirdPartyAuth;
@@ -764,25 +724,6 @@ public class NevisConfigProperties implements InitializingBean
                     "|                                                     %n" +
                     "| API Root                          %s%n" +
                     "|                                                     %n" +
-                    "|                                                     %n" +
-                    "| OAuth2 Clients tokens validity (seconds):           %n" +
-                    "|   Untrusted                                         %n" +
-                    "|     access_token                  %s%n" +
-                    "|     refresh_token                 %s%n" +
-                    "|   Trusted                                           %n" +
-                    "|     access_token                  %s%n" +
-                    "|     refresh_token                 %s%n" +
-                    "|   Unlimited                                         %n" +
-                    "|     access_token                  %s%n" +
-                    "|     refresh_token                 %s%n" +
-                    "|                                                     %n" +
-                    "|                                                     %n" +
-                    "| Is Third-party initialized?                         %n" +
-                    "|   Google Captcha                  %s%n" +
-                    "|   Google Sign                     %s%n" +
-                    "|   Facebook Sign                   %s%n" +
-                    "|                                                     %n" +
-                    "|                                                     %n" +
                     "| API Resources                                       %n" +
                     "|                                                     %n" +
                     "|   Auth:                                             %n" +
@@ -790,7 +731,6 @@ public class NevisConfigProperties implements InitializingBean
                     "|      %s%n" +
                     "|                                                     %n" +
                     "|   Account.Common:                                   %n" +
-                    "|      %s%n" +
                     "|      %s%n" +
                     "|      %s%n" +
                     "|      %s%n" +
@@ -828,21 +768,25 @@ public class NevisConfigProperties implements InitializingBean
                     "|     password rest            %s%n" +
                     "|     email confirm            %s%n" +
                     "|     account                  %s%n" +
+                    "|                                                     %n" +
+                    "|                                                     %n" +
+                    "| Is Third-party initialized?                         %n" +
+                    "|   Google Sign                     %s%n" +
+                    "|   Facebook Sign                   %s%n" +
+                    "|                                                     %n" +
+                    "|                                                     %n" +
+                    "| OAuth2 Clients tokens validity (seconds):           %n" +
+                    "|   Untrusted                                         %n" +
+                    "|     access_token                  %s%n" +
+                    "|     refresh_token                 %s%n" +
+                    "|   Trusted                                           %n" +
+                    "|     access_token                  %s%n" +
+                    "|     refresh_token                 %s%n" +
+                    "|   Unlimited                                         %n" +
+                    "|     access_token                  %s%n" +
+                    "|     refresh_token                 %s%n" +
                     "|_____________________________________________________%n%n",
             apiRoot,
-
-            // OAuth2 Clients tokens validity
-            oauth2ClientUntrusted.accessTokenValiditySeconds,
-            oauth2ClientUntrusted.refreshTokenValiditySeconds,
-            oauth2ClientTrusted.accessTokenValiditySeconds,
-            oauth2ClientTrusted.refreshTokenValiditySeconds,
-            oAuth2ClientUnlimited.accessTokenValiditySeconds,
-            oAuth2ClientUnlimited.refreshTokenValiditySeconds,
-
-            // Is Third-party initialized?
-            captcha.googleSecretKey != null,
-            thirdPartyAuth.googleClientId != null,
-            thirdPartyAuth.facebookAppId != null && thirdPartyAuth.facebookAppSecret != null,
 
             // Auth
             resource.signIn,
@@ -851,7 +795,6 @@ public class NevisConfigProperties implements InitializingBean
             // Account.Common
             resource.canUseUsername,
             resource.canUsePassword,
-            resource.googleCaptchaValidate,
             resource.createAccount,
             resource.id,
             resource.deleteAccount,
@@ -883,7 +826,19 @@ public class NevisConfigProperties implements InitializingBean
             // Frontend
             frontend.resourcePasswordReset,
             frontend.resourceEmailConfirm,
-            frontend.resourceAccount
+            frontend.resourceAccount,
+
+            // Is Third-party initialized?
+            thirdPartyAuth.googleClientId != null,
+            thirdPartyAuth.facebookAppId != null && thirdPartyAuth.facebookAppSecret != null,
+
+            // OAuth2 Clients tokens validity
+            oauth2ClientUntrusted.accessTokenValiditySeconds,
+            oauth2ClientUntrusted.refreshTokenValiditySeconds,
+            oauth2ClientTrusted.accessTokenValiditySeconds,
+            oauth2ClientTrusted.refreshTokenValiditySeconds,
+            oAuth2ClientUnlimited.accessTokenValiditySeconds,
+            oAuth2ClientUnlimited.refreshTokenValiditySeconds
     );
   }
 }
