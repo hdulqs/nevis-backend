@@ -17,6 +17,7 @@ import dwfe.modules.nevis.db.mailing.NevisMailingService;
 import dwfe.modules.nevis.db.other.country.NevisCountryService;
 import dwfe.modules.nevis.db.other.gender.NevisGender;
 import dwfe.modules.nevis.util.NevisUtil;
+import dwfe.util.DwfeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
@@ -41,13 +42,15 @@ import static dwfe.modules.nevis.db.account.access.NevisAccountThirdParty.GOOGLE
 import static dwfe.modules.nevis.db.account.access.NevisAccountUsernameType.*;
 import static dwfe.modules.nevis.db.mailing.NevisMailingType.*;
 import static dwfe.modules.nevis.util.NevisUtil.*;
+import static dwfe.util.DwfeUtil.*;
 
 @RestController
 @RequestMapping(path = "#{nevisConfigProperties.api}", produces = "application/json; charset=utf-8")
 public class NevisControllerV1
 {
   private final NevisConfigProperties prop;
-  private final NevisUtil util;
+  private final DwfeUtil dwfeUtil;
+  private final NevisUtil nevisUtil;
   private final RestTemplate restTemplate;
   private final RestTemplateBuilder restTemplateBuilder;
   private final ConsumerTokenServices tokenServices;
@@ -60,10 +63,11 @@ public class NevisControllerV1
   private final NevisCountryService countryService;
 
   @Autowired
-  public NevisControllerV1(NevisConfigProperties prop, NevisUtil util, RestTemplateBuilder restTemplateBuilder, ConsumerTokenServices tokenServices, NevisAccountAccessService accessService, NevisAccountEmailService emailService, NevisAccountPhoneService phoneService, NevisAccountPersonalService personalService, NevisMailingService mailingService, NevisCountryService countryService)
+  public NevisControllerV1(NevisConfigProperties prop, DwfeUtil dwfeUtil, NevisUtil nevisUtil, RestTemplateBuilder restTemplateBuilder, ConsumerTokenServices tokenServices, NevisAccountAccessService accessService, NevisAccountEmailService emailService, NevisAccountPhoneService phoneService, NevisAccountPersonalService personalService, NevisMailingService mailingService, NevisCountryService countryService)
   {
     this.prop = prop;
-    this.util = util;
+    this.dwfeUtil = dwfeUtil;
+    this.nevisUtil = nevisUtil;
     this.restTemplate = restTemplateBuilder.build();
     this.restTemplateBuilder = restTemplateBuilder;
     this.tokenServices = tokenServices;
@@ -456,7 +460,7 @@ public class NevisControllerV1
     //
     if (errorCodes.size() == 0)
     {
-      var url = util.prepareSignInUrl(email, password, EMAIL);
+      var url = nevisUtil.prepareSignInUrl(email, password, EMAIL);
 
       var reqSignIn = RequestEntity
               .post(URI.create(url))
@@ -525,7 +529,7 @@ public class NevisControllerV1
 
     if (isDefaultPreCheckOk(email, "email", errorCodes)
             && standardEmailCheck(email, "email", errorCodes)
-            && util.isAllowedNewRequestForMailing(type, email, errorCodes))
+            && dwfeUtil.isAllowedNewRequestForMailing(type, email, errorCodes))
     {
       var aEmailOpt = emailService.findByValue(email);
       if (aEmailOpt.isPresent())
@@ -614,7 +618,7 @@ public class NevisControllerV1
       var email = aEmail.getValue();
       if (aEmail.isConfirmed())
         errorCodes.add("email-is-already-confirmed");
-      else if (util.isAllowedNewRequestForMailing(type, email, errorCodes))
+      else if (dwfeUtil.isAllowedNewRequestForMailing(type, email, errorCodes))
         mailingService.save(NevisMailing.of(type, email, getRandomStrAlphaDigit(40)));
     }
     else errorCodes.add("no-email-associated-with-account");

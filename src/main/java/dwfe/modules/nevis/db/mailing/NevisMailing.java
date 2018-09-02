@@ -5,8 +5,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static dwfe.modules.nevis.util.NevisUtil.formatDateTimeToUTCstring;
-import static dwfe.modules.nevis.util.NevisUtil.getJsonFieldFromObj;
+import static dwfe.util.DwfeUtil.formatDateTimeToUTCstring;
+import static dwfe.util.DwfeUtil.getJsonFieldFromObj;
 
 @Entity
 @IdClass(NevisMailing.NevisMailingId.class)

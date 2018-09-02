@@ -26,7 +26,7 @@ import static dwfe.modules.nevis.test.NevisTestResourceAccessingType.BAD_ACCESS_
 import static dwfe.modules.nevis.test.NevisTestResourceAccessingType.USUAL;
 import static dwfe.modules.nevis.test.NevisTestVariablesForAuthTest.AUTHORITY_to_AUTHORITY_STATUS;
 import static dwfe.modules.nevis.test.NevisTestVariablesForAuthTest.AUTHORITY_to_AUTHORITY_STATUS_BAD_ACCESS_TOKEN;
-import static dwfe.modules.nevis.util.NevisUtil.getJsonFromObj;
+import static dwfe.util.DwfeUtil.getJsonFromObj;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;

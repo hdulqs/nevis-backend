@@ -16,8 +16,8 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dwfe.modules.nevis.util.NevisUtil.formatDateTimeToUTCstring;
 import static dwfe.modules.nevis.util.NevisUtil.getAuthorities;
+import static dwfe.util.DwfeUtil.formatDateTimeToUTCstring;
 
 @Configuration
 public class NevisTokenConfig

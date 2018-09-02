@@ -1,13 +1,13 @@
 package dwfe.modules.nevis.db.account.personal;
 
 import dwfe.modules.nevis.db.other.gender.NevisGender;
-import dwfe.modules.nevis.util.NevisUtil;
+import dwfe.util.DwfeUtil;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static dwfe.modules.nevis.util.NevisUtil.cutStr;
+import static dwfe.util.DwfeUtil.cutStr;
 
 @Entity
 @Table(name = "nevis_account_personal")
@@ -228,7 +228,7 @@ public class NevisAccountPersonal
 
   public void setCountry(String country)
   {
-    this.country = NevisUtil.strToUpperCase(country);
+    this.country = DwfeUtil.strToUpperCase(country);
   }
 
   public Boolean getCountryNonPublic()
