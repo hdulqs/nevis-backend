@@ -2,10 +2,10 @@ package dwfe.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dwfe.config.DwfeConfigProperties;
 import dwfe.db.mailing.DwfeMailingService;
 import dwfe.db.mailing.DwfeMailingType;
 import dwfe.db.other.DwfeModule;
-import dwfe.modules.nevis.config.NevisConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Component;
@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 @Component
 public class DwfeUtil
 {
-  private final NevisConfigProperties prop;
+  private final DwfeConfigProperties propDwfe;
   private final DwfeMailingService mailingService;
 
   @Autowired
-  public DwfeUtil(NevisConfigProperties prop, DwfeMailingService mailingService)
+  public DwfeUtil(DwfeConfigProperties propDwfe, DwfeMailingService mailingService)
   {
+    this.propDwfe = propDwfe;
     this.mailingService = mailingService;
-    this.prop = prop;
   }
 
   //-------------------------------------------------------
@@ -219,7 +219,7 @@ public class DwfeUtil
     {
       var whenNewIsAllowed = lastPending.get()
               .getCreatedOn()
-              .plus(prop.getScheduledTaskMailing().getTimeoutForDuplicateRequest(), ChronoUnit.MILLIS);
+              .plus(propDwfe.getScheduledTaskMailing().getTimeoutForDuplicateRequest(), ChronoUnit.MILLIS);
 
       if (whenNewIsAllowed.isAfter(LocalDateTime.now()))
         errorCodes.add("delay-between-duplicate-requests");

@@ -1,13 +1,13 @@
 package dwfe.modules.nevis.db.account.access;
 
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
 import dwfe.modules.nevis.db.account.email.NevisAccountEmail;
 import dwfe.modules.nevis.db.account.email.NevisAccountEmailService;
 import dwfe.modules.nevis.db.account.personal.NevisAccountPersonal;
 import dwfe.modules.nevis.db.account.personal.NevisAccountPersonalService;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhone;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhoneService;
-import dwfe.db.mailing.DwfeMailing;
-import dwfe.db.mailing.DwfeMailingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -13,8 +13,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
-import static dwfe.util.DwfeUtil.formatMillisecondsToReadableString;
-
 @Validated
 @Configuration
 @ConfigurationProperties(prefix = "dwfe.nevis")
@@ -38,9 +36,6 @@ public class NevisConfigProperties implements InitializingBean
   private Frontend frontend = new Frontend();
 
   @NotNull
-  private ScheduledTaskMailing scheduledTaskMailing;
-
-  @NotNull
   private OAuth2ClientUntrusted oauth2ClientUntrusted;
   @NotNull
   private OAuth2ClientTrusted oauth2ClientTrusted;
@@ -58,10 +53,6 @@ public class NevisConfigProperties implements InitializingBean
   @Override
   public void afterPropertiesSet() throws Exception
   {
-    if (scheduledTaskMailing.getTimeoutForDuplicateRequest() <= 0)
-      scheduledTaskMailing.setTimeoutForDuplicateRequest(
-              scheduledTaskMailing.getSendInterval() * scheduledTaskMailing.getMaxAttemptsToSendIfError());
-
     var address = env.getProperty("server.address");
     var port = env.getProperty("server.port");
     apiRoot = "http://" + address + ":" + port + api;
@@ -744,16 +735,6 @@ public class NevisConfigProperties implements InitializingBean
     this.frontend = frontend;
   }
 
-  public ScheduledTaskMailing getScheduledTaskMailing()
-  {
-    return scheduledTaskMailing;
-  }
-
-  public void setScheduledTaskMailing(ScheduledTaskMailing scheduledTaskMailing)
-  {
-    this.scheduledTaskMailing = scheduledTaskMailing;
-  }
-
   public OAuth2ClientUntrusted getOauth2ClientUntrusted()
   {
     return oauth2ClientUntrusted;
@@ -789,7 +770,7 @@ public class NevisConfigProperties implements InitializingBean
   {
     return String.format("%n%n" +
                     "-====================================================-%n" +
-                    "|                     ::[Nevis]::                    |%n" +
+                    "|                  \uD83D\uDD11\uD83D\uDD11 Nevis \uD83D\uDD11\uD83D\uDD11                 %n" +
                     "|----------------------------------------------------|%n" +
                     "|                                                     %n" +
                     "| API Root                          %s%n" +
@@ -805,14 +786,6 @@ public class NevisConfigProperties implements InitializingBean
                     "|   Unlimited                                         %n" +
                     "|     access_token                  %s%n" +
                     "|     refresh_token                 %s%n" +
-                    "|                                                     %n" +
-                    "|                                                     %n" +
-                    "| Scheduled Task - Mailing:                           %n" +
-                    "|   initial delay                   %s%n" +
-                    "|   collect from DB interval        %s%n" +
-                    "|   send interval                   %s%n" +
-                    "|   max attempts to send if error   %s%n" +
-                    "|   timeout for duplicate request   %s%n" +
                     "|                                                     %n" +
                     "|                                                     %n" +
                     "| Is Third-party initialized?                         %n" +
@@ -877,13 +850,6 @@ public class NevisConfigProperties implements InitializingBean
             oauth2ClientTrusted.refreshTokenValiditySeconds,
             oAuth2ClientUnlimited.accessTokenValiditySeconds,
             oAuth2ClientUnlimited.refreshTokenValiditySeconds,
-
-            // Scheduled Task - Mailing
-            formatMillisecondsToReadableString(scheduledTaskMailing.initialDelay),
-            formatMillisecondsToReadableString(scheduledTaskMailing.collectFromDbInterval),
-            formatMillisecondsToReadableString(scheduledTaskMailing.sendInterval),
-            scheduledTaskMailing.maxAttemptsToSendIfError,
-            formatMillisecondsToReadableString(scheduledTaskMailing.timeoutForDuplicateRequest),
 
             // Is Third-party initialized?
             captcha.googleSecretKey != null,

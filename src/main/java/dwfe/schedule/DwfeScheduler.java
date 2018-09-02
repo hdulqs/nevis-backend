@@ -1,5 +1,6 @@
 package dwfe.schedule;
 
+import dwfe.config.DwfeConfigProperties;
 import dwfe.db.mailing.DwfeMailing;
 import dwfe.db.mailing.DwfeMailingService;
 import dwfe.db.mailing.DwfeMailingType;
@@ -32,6 +33,7 @@ public class DwfeScheduler
 {
   private final static Logger log = LoggerFactory.getLogger(DwfeScheduler.class);
 
+  private final DwfeConfigProperties propDwfe;
   private final NevisConfigProperties propNevis;
   private final DwfeMailingService mailingService;
   private final JavaMailSender mailSender;
@@ -42,21 +44,22 @@ public class DwfeScheduler
   private final String sendFrom;
 
   @Autowired
-  public DwfeScheduler(Environment env, NevisConfigProperties propNevis, DwfeMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
+  public DwfeScheduler(Environment env, DwfeConfigProperties propDwfe, NevisConfigProperties propNevis, DwfeMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
   {
+    this.propDwfe = propDwfe;
     this.propNevis = propNevis;
     this.mailingService = mailingService;
     this.mailSender = mailSender;
     this.templateEngine = templateEngine;
 
-    this.maxAttemptsMailingIfError = propNevis.getScheduledTaskMailing().getMaxAttemptsToSendIfError();
+    this.maxAttemptsMailingIfError = propDwfe.getScheduledTaskMailing().getMaxAttemptsToSendIfError();
     this.sendFrom = env.getProperty("spring.mail.username");
   }
 
 
   @Scheduled(
-          initialDelayString = "#{nevisConfigProperties.scheduledTaskMailing.initialDelay}",
-          fixedRateString = "#{nevisConfigProperties.scheduledTaskMailing.collectFromDbInterval}")
+          initialDelayString = "#{dwfeConfigProperties.scheduledTaskMailing.initialDelay}",
+          fixedRateString = "#{dwfeConfigProperties.scheduledTaskMailing.collectFromDbInterval}")
   public void collectMailingTasksFromDatabase()
   {
     MAILING_POOL.addAll(mailingService.getNewJob());
@@ -65,8 +68,8 @@ public class DwfeScheduler
 
 
   @Scheduled(
-          initialDelayString = "#{nevisConfigProperties.scheduledTaskMailing.initialDelay}",
-          fixedDelayString = "#{nevisConfigProperties.scheduledTaskMailing.sendInterval}")
+          initialDelayString = "#{dwfeConfigProperties.scheduledTaskMailing.initialDelay}",
+          fixedDelayString = "#{dwfeConfigProperties.scheduledTaskMailing.sendInterval}")
   public void sendingMail()
   {
     log.debug("mailing [{}] before sending", MAILING_POOL.size());

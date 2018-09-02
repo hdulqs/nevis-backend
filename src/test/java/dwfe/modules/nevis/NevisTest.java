@@ -1,5 +1,6 @@
 package dwfe.modules.nevis;
 
+import dwfe.config.DwfeConfigProperties;
 import dwfe.db.mailing.DwfeMailing;
 import dwfe.db.mailing.DwfeMailingService;
 import dwfe.db.mailing.DwfeMailingType;
@@ -65,7 +66,9 @@ public class NevisTest
   private static Set<String> auth_test_access_tokens = new HashSet<>();
 
   @Autowired
-  private NevisConfigProperties prop;
+  private DwfeConfigProperties propDwfe;
+  @Autowired
+  private NevisConfigProperties propNevis;
   @Autowired
   private NevisTestUtil util;
   @Autowired
@@ -165,21 +168,21 @@ public class NevisTest
   public void _02_01_canUseUsername()
   {
     logHead("Can use Username");
-    util.check(POST, prop.getResource().getCanUseUsername(), auth.getAnonym_accessToken(), checkers_for_canUseUsername);
+    util.check(POST, propNevis.getResource().getCanUseUsername(), auth.getAnonym_accessToken(), checkers_for_canUseUsername);
   }
 
   @Test
   public void _02_02_canUsePassword()
   {
     logHead("Can use Password");
-    util.check(POST, prop.getResource().getCanUsePassword(), auth.getAnonym_accessToken(), checkers_for_canUsePassword);
+    util.check(POST, propNevis.getResource().getCanUsePassword(), auth.getAnonym_accessToken(), checkers_for_canUsePassword);
   }
 
   @Test
   public void _02_03_googleCaptchaValidate()
   {
     logHead("Google Captcha Validate");
-    util.check(POST, prop.getResource().getGoogleCaptchaValidate(), auth.getAnonym_accessToken(), checkers_for_googleCaptchaValidate);
+    util.check(POST, propNevis.getResource().getGoogleCaptchaValidate(), auth.getAnonym_accessToken(), checkers_for_googleCaptchaValidate);
   }
 
   @Test
@@ -187,7 +190,7 @@ public class NevisTest
   {
     logHead("Create Account");
 
-    util.check(POST, prop.getResource().getCreateAccount(), auth.getAnonym_accessToken(), checkers_for_createAccount());
+    util.check(POST, propNevis.getResource().getCreateAccount(), auth.getAnonym_accessToken(), checkers_for_createAccount());
     //
     // Was created 5 new accounts:
     //  - Account3 - EMAIL, password was not passed
@@ -337,7 +340,7 @@ public class NevisTest
   public void _02_06_thirdPartyAuth()
   {
     logHead("Third-party Auth");
-    util.check(POST, prop.getResource().getThirdPartyAuth(), auth.getAnonym_accessToken(), checkers_for_thirdPartyAuth);
+    util.check(POST, propNevis.getResource().getThirdPartyAuth(), auth.getAnonym_accessToken(), checkers_for_thirdPartyAuth);
   }
 
   @Test
@@ -347,7 +350,7 @@ public class NevisTest
 
     var auth1 = auth.of(USER, Account1_EMAIL, EMAIL, Account1_Pass, client.getClientTrusted());
 
-    util.check(POST, prop.getResource().getDeleteAccount(), auth1.access_token, checkers_for_deleteAccount);
+    util.check(POST, propNevis.getResource().getDeleteAccount(), auth1.access_token, checkers_for_deleteAccount);
 
     assertFalse(accessService.findById(Long.parseLong(Account1_ID)).isPresent());
     assertFalse(emailService.findById(Long.parseLong(Account1_ID)).isPresent());
@@ -365,7 +368,7 @@ public class NevisTest
   {
     logHead("Get Account Access");
 
-    var resource = prop.getResource().getGetAccountAccess();
+    var resource = propNevis.getResource().getGetAccountAccess();
 
     util.check(GET, resource, auth.getADMIN().access_token, checkers_for_getAccountAccess1);
 
@@ -387,7 +390,7 @@ public class NevisTest
     logHead("Password Change = " + username);
 
     var clientTrusted = client.getClientTrusted();
-    var resource = prop.getResource().getPasswordChange();
+    var resource = propNevis.getResource().getPasswordChange();
 
     var auth1 = auth.of(username, usernameType, newpass, clientTrusted);
     util.tokenProcess(SIGN_IN, auth1, 400);
@@ -422,8 +425,8 @@ public class NevisTest
   {
     logHead("Password Reset Request = " + username);
 
-    var resource = prop.getResource().getPasswordResetReq();
-    var timeToWait = TimeUnit.MILLISECONDS.toSeconds(prop.getScheduledTaskMailing().getCollectFromDbInterval()) * 3;
+    var resource = propNevis.getResource().getPasswordResetReq();
+    var timeToWait = TimeUnit.MILLISECONDS.toSeconds(propDwfe.getScheduledTaskMailing().getCollectFromDbInterval()) * 3;
     var type = PASSWORD_RESET_CONFIRM;
 
     assertEquals(0, mailingService.findByModuleAndTypeAndEmail(NEVIS, type, username).size());
@@ -458,7 +461,7 @@ public class NevisTest
     util.tokenProcess(SIGN_IN, auth1, 200);
 
     //change password
-    util.check(POST, prop.getResource().getPasswordReset(), null,
+    util.check(POST, propNevis.getResource().getPasswordReset(), null,
             checkers_for_passwordReset(username, newpassForCheckers, mailingList.get(0).getData()));
 
     assertEquals(1, mailingService.findSentNotEmptyData(NEVIS, type, username).size());
@@ -480,7 +483,7 @@ public class NevisTest
   {
     logHead("Get Account Email");
 
-    var resource = prop.getResource().getGetAccountEmail();
+    var resource = propNevis.getResource().getGetAccountEmail();
     var auth0 = auth.of(USER, Account4_NICKNAME, NICKNAME, Account4_Pass, client.getClientTrusted());
 
     util.check(GET, resource, auth0.access_token, checkers_for_getAccountEmail1);
@@ -492,8 +495,8 @@ public class NevisTest
   {
     logHead("Email Confirm Request");
 
-    var timeToWait = TimeUnit.MILLISECONDS.toSeconds(prop.getScheduledTaskMailing().getCollectFromDbInterval()) * 2;
-    var resource = prop.getResource().getEmailConfirmReq();
+    var timeToWait = TimeUnit.MILLISECONDS.toSeconds(propDwfe.getScheduledTaskMailing().getCollectFromDbInterval()) * 2;
+    var resource = propNevis.getResource().getEmailConfirmReq();
     var clientTrusted = client.getClientTrusted();
     var type = EMAIL_CONFIRM;
 
@@ -564,7 +567,7 @@ public class NevisTest
     var mailingList = getMailingSentNotEmptyData(type, email);
     assertEquals(2, mailingList.size());
     var confirmKey = mailingList.get(0).getData();
-    util.check(POST, prop.getResource().getEmailConfirm(), null, checkers_for_confirmEmail(confirmKey));
+    util.check(POST, propNevis.getResource().getEmailConfirm(), null, checkers_for_confirmEmail(confirmKey));
 
     mailingList = getMailingSentNotEmptyData(type, email);
     assertEquals(1, mailingList.size());
@@ -579,7 +582,7 @@ public class NevisTest
     logHead("Email Change");
 
     var clientTrusted = client.getClientTrusted();
-    var resource = prop.getResource().getEmailChange();
+    var resource = propNevis.getResource().getEmailChange();
 
     var auth1 = auth.of(Account5_EMAIL, EMAIL, Account5_Pass, clientTrusted);
     util.tokenProcess(SIGN_IN, auth1, 400);
@@ -613,7 +616,7 @@ public class NevisTest
     logHead("Update Account Email");
 
     var clientTrusted = client.getClientTrusted();
-    var resource = prop.getResource().getUpdateAccountEmail();
+    var resource = propNevis.getResource().getUpdateAccountEmail();
 
     var auth1 = auth.of(USER, Account4_NICKNAME, NICKNAME, Account4_Pass, clientTrusted);
     var auth2 = auth.of(USER, Account5_PHONE, PHONE, Account5_Pass, clientTrusted);
@@ -638,7 +641,7 @@ public class NevisTest
   {
     logHead("Get Account Phone");
 
-    var resource = prop.getResource().getGetAccountPhone();
+    var resource = propNevis.getResource().getGetAccountPhone();
     var clientTrusted = client.getClientTrusted();
 
     var auth1 = auth.of(USER, Account4_NICKNAME, NICKNAME, Account4_Pass, clientTrusted);
@@ -654,7 +657,7 @@ public class NevisTest
     logHead("Phone Change");
 
     var clientTrusted = client.getClientTrusted();
-    var resource = prop.getResource().getPhoneChange();
+    var resource = propNevis.getResource().getPhoneChange();
 
     var auth1 = auth.of(Account7_PHONE, PHONE, Account7_Pass_Decoded, clientTrusted);
     util.tokenProcess(SIGN_IN, auth1, 400);
@@ -687,7 +690,7 @@ public class NevisTest
     logHead("Update Account Phone");
 
     var clientTrusted = client.getClientTrusted();
-    var resource = prop.getResource().getUpdateAccountPhone();
+    var resource = propNevis.getResource().getUpdateAccountPhone();
 
     var auth1 = auth.of(USER, Account3_EMAIL, EMAIL, Account3_Pass, clientTrusted);
     var auth2 = auth.of(USER, Account5_NewPhone, PHONE, Account5_Pass, clientTrusted);
@@ -712,7 +715,7 @@ public class NevisTest
   {
     logHead("Get Account Personal");
 
-    var resource = prop.getResource().getGetAccountPersonal();
+    var resource = propNevis.getResource().getGetAccountPersonal();
     var clientTrusted = client.getClientTrusted();
 
     var auth1 = auth.of(USER, Account6_NewEmail, EMAIL, Account6_Pass, clientTrusted);
@@ -730,7 +733,7 @@ public class NevisTest
     logHead("NickName Change");
 
     var clientTrusted = client.getClientTrusted();
-    var resource = prop.getResource().getNicknameChange();
+    var resource = propNevis.getResource().getNicknameChange();
 
     var auth1 = auth.of(Account4_NewNickName, NICKNAME, Account4_Pass, clientTrusted);
     util.tokenProcess(SIGN_IN, auth1, 400);
@@ -781,7 +784,7 @@ public class NevisTest
     logHead("Update Account Personal");
 
     var clientTrusted = client.getClientTrusted();
-    var resource = prop.getResource().getUpdateAccountPersonal();
+    var resource = propNevis.getResource().getUpdateAccountPersonal();
 
     var auth1 = auth.of(USER, Account6_NewEmail, EMAIL, Account6_Pass, clientTrusted);
 
