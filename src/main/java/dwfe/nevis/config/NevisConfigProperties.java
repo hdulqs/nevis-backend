@@ -821,7 +821,7 @@ public class NevisConfigProperties implements InitializingBean
                     "|   Facebook Sign                   %s%n" +
                     "|                                                     %n" +
                     "|                                                     %n" +
-                    "| RESOURCES                                           %n" +
+                    "| API Resources                                       %n" +
                     "|                                                     %n" +
                     "|   Auth:                                             %n" +
                     "|      %s%n" +

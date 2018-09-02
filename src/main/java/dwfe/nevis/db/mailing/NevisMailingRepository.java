@@ -17,8 +17,6 @@ public interface NevisMailingRepository extends JpaRepository<NevisMailing, Nevi
 
   List<NevisMailing> findByTypeAndEmail(NevisMailingType type, String email);
 
-  Optional<NevisMailing> findByTypeAndEmailAndData(NevisMailingType type, String email, String data);
-
   @Query(nativeQuery = true,
           value = "SELECT * FROM nevis_mailing WHERE type=:type AND email=:email ORDER BY created_on DESC LIMIT 1")
   Optional<NevisMailing> findLastByTypeAndEmail(@Param("type") String type, @Param("email") String email);

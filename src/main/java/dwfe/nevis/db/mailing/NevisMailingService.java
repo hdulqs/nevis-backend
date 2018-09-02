@@ -34,11 +34,6 @@ public class NevisMailingService
     return repository.findByTypeAndEmail(type, email);
   }
 
-  public Optional<NevisMailing> findByTypeAndEmailAndData(NevisMailingType type, String email, String data)
-  {
-    return repository.findByTypeAndEmailAndData(type, email, data);
-  }
-
   public Optional<NevisMailing> findLastByTypeAndEmail(NevisMailingType type, String email)
   {
     return repository.findLastByTypeAndEmail(
