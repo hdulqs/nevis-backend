@@ -1,4 +1,4 @@
-package dwfe.db.other.country;
+package dwfe.db.country;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class NevisCountryService
     this.repository = repository;
   }
 
-  public Optional<NevisCountry> findById(String id)
+  public Optional<DwfeCountry> findById(String id)
   {
     return repository.findById(id);
   }

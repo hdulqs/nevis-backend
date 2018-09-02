@@ -1,12 +1,12 @@
-package dwfe.db.other.country;
+package dwfe.db.country;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "nevis_countries")
-public class NevisCountry
+@Table(name = "dwfe_countries")
+public class DwfeCountry
 {
   private String country;
   @Id
@@ -70,7 +70,7 @@ public class NevisCountry
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    var that = (NevisCountry) o;
+    var that = (DwfeCountry) o;
 
     return alpha2.equals(that.alpha2);
   }

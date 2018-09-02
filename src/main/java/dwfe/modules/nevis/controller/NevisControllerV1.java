@@ -1,5 +1,9 @@
 package dwfe.modules.nevis.controller;
 
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
+import dwfe.db.other.DwfeGender;
+import dwfe.db.country.NevisCountryService;
 import dwfe.modules.nevis.config.NevisConfigProperties;
 import dwfe.modules.nevis.db.account.access.NevisAccountAccess;
 import dwfe.modules.nevis.db.account.access.NevisAccountAccessService;
@@ -12,10 +16,6 @@ import dwfe.modules.nevis.db.account.personal.NevisAccountPersonal;
 import dwfe.modules.nevis.db.account.personal.NevisAccountPersonalService;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhone;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhoneService;
-import dwfe.db.mailing.DwfeMailing;
-import dwfe.db.mailing.DwfeMailingService;
-import dwfe.db.other.country.NevisCountryService;
-import dwfe.db.other.gender.DwfeGender;
 import dwfe.modules.nevis.util.NevisUtil;
 import dwfe.util.DwfeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +37,11 @@ import java.util.*;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
+import static dwfe.db.mailing.DwfeMailingType.*;
+import static dwfe.db.other.DwfeModule.NEVIS;
 import static dwfe.modules.nevis.db.account.access.NevisAccountThirdParty.FACEBOOK;
 import static dwfe.modules.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.modules.nevis.db.account.access.NevisAccountUsernameType.*;
-import static dwfe.db.mailing.DwfeMailingType.*;
 import static dwfe.modules.nevis.util.NevisUtil.*;
 import static dwfe.util.DwfeUtil.*;
 
@@ -258,7 +259,7 @@ public class NevisControllerV1
 
       // TABLE - Mailing
       var mailingType = automaticallyGeneratedPassword.isEmpty() ? WELCOME_ONLY : WELCOME_PASSWORD;
-      var mailing = DwfeMailing.of(mailingType, aEmail.getValue(), automaticallyGeneratedPassword);
+      var mailing = DwfeMailing.of(mailingType, aEmail.getValue(), NEVIS, automaticallyGeneratedPassword);
 
       // Save new Account
       accessService.save(
@@ -513,7 +514,7 @@ public class NevisControllerV1
       {
         var email = emailService.findById(id).map(NevisAccountEmail::getValue).orElse(null);
         aAccess.setPassword(preparePasswordForDB(newpass));
-        accessService.save(aAccess, DwfeMailing.of(PASSWORD_WAS_CHANGED, email), mailingService);
+        accessService.save(aAccess, DwfeMailing.of(PASSWORD_WAS_CHANGED, email, NEVIS), mailingService);
       }
       else errorCodes.add("wrong-" + req.curpassFieldName);
     }
@@ -534,7 +535,7 @@ public class NevisControllerV1
       var aEmailOpt = emailService.findByValue(email);
       if (aEmailOpt.isPresent())
       {
-        mailingService.save(DwfeMailing.of(type, email, getRandomStrAlphaDigit(40)));
+        mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomStrAlphaDigit(40)));
       }
       else errorCodes.add("email-not-exist");
     }
@@ -619,7 +620,7 @@ public class NevisControllerV1
       if (aEmail.isConfirmed())
         errorCodes.add("email-is-already-confirmed");
       else if (dwfeUtil.isAllowedNewRequestForMailing(type, email, errorCodes))
-        mailingService.save(DwfeMailing.of(type, email, getRandomStrAlphaDigit(40)));
+        mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomStrAlphaDigit(40)));
     }
     else errorCodes.add("no-email-associated-with-account");
     return getResponse(errorCodes);

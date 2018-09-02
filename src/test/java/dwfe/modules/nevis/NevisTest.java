@@ -1,5 +1,8 @@
 package dwfe.modules.nevis;
 
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
+import dwfe.db.mailing.DwfeMailingType;
 import dwfe.modules.nevis.config.NevisConfigProperties;
 import dwfe.modules.nevis.db.account.access.NevisAccountAccess;
 import dwfe.modules.nevis.db.account.access.NevisAccountAccessService;
@@ -11,9 +14,6 @@ import dwfe.modules.nevis.db.account.personal.NevisAccountPersonal;
 import dwfe.modules.nevis.db.account.personal.NevisAccountPersonalService;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhone;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhoneService;
-import dwfe.db.mailing.DwfeMailing;
-import dwfe.db.mailing.DwfeMailingService;
-import dwfe.db.mailing.DwfeMailingType;
 import dwfe.modules.nevis.test.NevisTestAuth;
 import dwfe.modules.nevis.test.NevisTestChecker;
 import dwfe.modules.nevis.test.NevisTestClient;
@@ -36,10 +36,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static dwfe.db.mailing.DwfeMailingType.*;
+import static dwfe.db.other.DwfeGender.M;
+import static dwfe.db.other.DwfeModule.NEVIS;
 import static dwfe.modules.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.modules.nevis.db.account.access.NevisAccountUsernameType.*;
-import static dwfe.db.mailing.DwfeMailingType.*;
-import static dwfe.db.other.gender.DwfeGender.M;
 import static dwfe.modules.nevis.test.NevisTestAuthType.SIGN_IN;
 import static dwfe.modules.nevis.test.NevisTestAuthorityLevel.USER;
 import static dwfe.modules.nevis.test.NevisTestResourceAccessingType.USUAL;
@@ -431,10 +432,9 @@ public class NevisTest
     util.check(POST, resource, null, checkers_for_passwordResetReq_duplicateDelay(username));
 
     pleaseWait(timeToWait);
-    var mailingList = mailingService.findSentNotEmptyData(type, username);
-    assertEquals(1, mailingList.size());
-    assertFalse(mailingList.get(0).isMaxAttemptsReached());
-    assertTrue(mailingList.get(0).getData().length() >= 28);
+    var letter = getMailingFirstOfOne(type, username);
+    assertFalse(letter.isMaxAttemptsReached());
+    assertTrue(letter.getData().length() >= 28);
 
     util.check(POST, resource, null, checkers_for_passwordResetReq(username));
 
@@ -520,9 +520,7 @@ public class NevisTest
     assertEquals(0, mailingList.size());
     util.check(GET, resource, accessToken, checkers_for_emailConfirmReq);
 
-    mailingList = getMailingListByTypeAndEmail(type, email);
-    assertEquals(1, mailingList.size());
-    var mailing = mailingList.get(0);
+    var mailing = getMailingFirstOfOne(type, email);
     assertFalse(mailing.isSent());
     assertFalse(mailing.isMaxAttemptsReached());
     assertTrue(mailing.getData().length() >= 35);
@@ -1000,19 +998,25 @@ public class NevisTest
   {
     var mailingOpt = mailingService.findLastSentNotEmptyData(type, email);
     assertTrue(mailingOpt.isPresent());
-    return mailingOpt.get();
+    var letter = mailingOpt.get();
+    assertEquals(NEVIS, letter.getModule());
+    return letter;
   }
 
   private List<DwfeMailing> getMailingSentNotEmptyData(DwfeMailingType type, String email)
   {
-    return mailingService.findSentNotEmptyData(type, email);
+    var list = mailingService.findSentNotEmptyData(type, email);
+    list.forEach(next -> assertEquals(NEVIS, next.getModule()));
+    return list;
   }
 
   private DwfeMailing getMailingFirstOfOne(DwfeMailingType type, String email)
   {
     var mailing = getMailingListByTypeAndEmail(type, email);
     assertEquals(1, mailing.size());
-    return mailing.get(0);
+    var letter = mailing.get(0);
+    assertEquals(NEVIS, letter.getModule());
+    return letter;
   }
 
   private void pleaseWait(long timeToWait)

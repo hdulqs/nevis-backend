@@ -3,12 +3,12 @@ USE dwfe_dev;
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS
 dwfe_mailing,
+dwfe_countries,
 nevis_account_access,
 nevis_account_email,
 nevis_account_phone,
 nevis_authorities,
 nevis_account_authority,
-nevis_countries,
 nevis_account_personal,
 oauth_access_token,
 oauth_refresh_token;
@@ -22,12 +22,25 @@ CREATE TABLE dwfe_mailing (
   created_on            DATETIME                                                                                                     NOT NULL               DEFAULT CURRENT_TIMESTAMP,
   `type`                ENUM ('WELCOME_ONLY', 'WELCOME_PASSWORD', 'PASSWORD_WAS_CHANGED', 'PASSWORD_RESET_CONFIRM', 'EMAIL_CONFIRM') NOT NULL,
   email                 VARCHAR(50)                                                                                                  NOT NULL,
+  module                ENUM ('NEVIS')                                                                                               NOT NULL,
   sent                  TINYINT(1)                                                                                                   NOT NULL,
   max_attempts_reached  TINYINT(1)                                                                                                   NOT NULL,
   data                  VARCHAR(2000)                                                                                                NOT NULL               DEFAULT '',
   cause_of_last_failure VARCHAR(2000),
   updated_on            DATETIME ON UPDATE CURRENT_TIMESTAMP                                                                                                DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (created_on, `type`, email)
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+
+CREATE TABLE dwfe_countries (
+  country    VARCHAR(100) NOT NULL,
+  alpha2     VARCHAR(2)   NOT NULL,
+  alpha3     VARCHAR(3)   NOT NULL DEFAULT '',
+  phone_code VARCHAR(50),
+  PRIMARY KEY (alpha2)
 )
   ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -111,18 +124,6 @@ CREATE TABLE nevis_account_authority (
   COLLATE = utf8mb4_unicode_ci;
 
 
-CREATE TABLE nevis_countries (
-  country    VARCHAR(100) NOT NULL,
-  alpha2     VARCHAR(2)   NOT NULL,
-  alpha3     VARCHAR(3)   NOT NULL DEFAULT '',
-  phone_code VARCHAR(50),
-  PRIMARY KEY (alpha2)
-)
-  ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
-
 CREATE TABLE nevis_account_personal (
   account_id               BIGINT(20)                           NOT NULL,
   nick_name                VARCHAR(100),
@@ -150,7 +151,7 @@ CREATE TABLE nevis_account_personal (
   KEY nevis_account_personal_account_id_fk (account_id),
   CONSTRAINT nevis_account_personal_account_id_fk FOREIGN KEY (account_id) REFERENCES nevis_account_access (id)
     ON DELETE CASCADE,
-  CONSTRAINT nevis_account_personal_countries_country_fk FOREIGN KEY (country) REFERENCES nevis_countries (alpha2)
+  CONSTRAINT nevis_account_personal_countries_country_fk FOREIGN KEY (country) REFERENCES dwfe_countries (alpha2)
     ON DELETE CASCADE
 )
   ENGINE = InnoDB

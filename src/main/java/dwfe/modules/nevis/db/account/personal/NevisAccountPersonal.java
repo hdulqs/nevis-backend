@@ -1,6 +1,6 @@
 package dwfe.modules.nevis.db.account.personal;
 
-import dwfe.db.other.gender.DwfeGender;
+import dwfe.db.other.DwfeGender;
 import dwfe.util.DwfeUtil;
 
 import javax.persistence.*;

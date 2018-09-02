@@ -1,9 +1,10 @@
-package dwfe.modules.nevis.schedule;
+package dwfe.schedule;
 
-import dwfe.modules.nevis.config.NevisConfigProperties;
 import dwfe.db.mailing.DwfeMailing;
 import dwfe.db.mailing.DwfeMailingService;
 import dwfe.db.mailing.DwfeMailingType;
+import dwfe.db.other.DwfeModule;
+import dwfe.modules.nevis.config.NevisConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import static dwfe.db.mailing.DwfeMailingType.*;
+import static dwfe.db.other.DwfeModule.NEVIS;
 
 @Component
 @PropertySource("classpath:application.properties")
-public class NevisScheduler
+public class DwfeScheduler
 {
-  private final static Logger log = LoggerFactory.getLogger(NevisScheduler.class);
+  private final static Logger log = LoggerFactory.getLogger(DwfeScheduler.class);
 
-  private final NevisConfigProperties prop;
+  private final NevisConfigProperties propNevis;
   private final DwfeMailingService mailingService;
   private final JavaMailSender mailSender;
   private final TemplateEngine templateEngine; // Thymeleaf
@@ -40,14 +42,14 @@ public class NevisScheduler
   private final String sendFrom;
 
   @Autowired
-  public NevisScheduler(Environment env, NevisConfigProperties prop, DwfeMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
+  public DwfeScheduler(Environment env, NevisConfigProperties propNevis, DwfeMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
   {
-    this.prop = prop;
+    this.propNevis = propNevis;
     this.mailingService = mailingService;
     this.mailSender = mailSender;
     this.templateEngine = templateEngine;
 
-    this.maxAttemptsMailingIfError = prop.getScheduledTaskMailing().getMaxAttemptsToSendIfError();
+    this.maxAttemptsMailingIfError = propNevis.getScheduledTaskMailing().getMaxAttemptsToSendIfError();
     this.sendFrom = env.getProperty("spring.mail.username");
   }
 
@@ -72,8 +74,9 @@ public class NevisScheduler
     MAILING_POOL.forEach(next -> {
       var type = next.getType();
       var email = next.getEmail();
+      var module = next.getModule();
       var data = next.getData();
-      var subjectMessage = getSubjectMessage(type, data);
+      var subjectMessage = getSubjectMessage(type, module, data);
       try
       {
         MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
@@ -124,31 +127,40 @@ public class NevisScheduler
       mailing.clear();
   }
 
-  private Map<String, String> getSubjectMessage(DwfeMailingType type, String data)
+  private Map<String, String> getSubjectMessage(DwfeMailingType type, DwfeModule module, String data)
   {
     var result = new HashMap<String, String>();
     var subjKey = "subject";
     var messageKey = "message";
     var dataKey = "data";
     var context = new Context();
-    var frontendHost = prop.getFrontend().getHost();
+    var frontendHost = propNevis.getFrontend().getHost();
 
     if (WELCOME_ONLY.equals(type))
     {
       result.put(subjKey, "Welcome");
-      context.setVariable("account_link", frontendHost + prop.getFrontend().getResourceAccount());
+      if (module == NEVIS)
+      {
+        context.setVariable("account_link", frontendHost + propNevis.getFrontend().getResourceAccount());
+      }
     }
     else if (WELCOME_PASSWORD.equals(type))
     {
       result.put(subjKey, "Welcome");
-      context.setVariable(dataKey, data);
-      context.setVariable("account_link", frontendHost + prop.getFrontend().getResourceAccount());
+      if (module == NEVIS)
+      {
+        context.setVariable(dataKey, data);
+        context.setVariable("account_link", frontendHost + propNevis.getFrontend().getResourceAccount());
+      }
     }
     else if (EMAIL_CONFIRM.equals(type))
     {
-      var resourceConfirmEmail = prop.getFrontend().getResourceEmailConfirm();
       result.put(subjKey, "Email confirm");
-      context.setVariable(dataKey, frontendHost + resourceConfirmEmail + "/" + data);
+      if (module == NEVIS)
+      {
+        var resourceConfirmEmail = propNevis.getFrontend().getResourceEmailConfirm();
+        context.setVariable(dataKey, frontendHost + resourceConfirmEmail + "/" + data);
+      }
     }
     else if (PASSWORD_WAS_CHANGED.equals(type))
     {
@@ -156,11 +168,14 @@ public class NevisScheduler
     }
     else if (PASSWORD_RESET_CONFIRM.equals(type))
     {
-      var resourceConfirmResetPass = prop.getFrontend().getResourcePasswordReset();
       result.put(subjKey, "Password reset");
-      context.setVariable(dataKey, frontendHost + resourceConfirmResetPass + "/" + data);
+      if (module == NEVIS)
+      {
+        var resourceConfirmResetPass = propNevis.getFrontend().getResourcePasswordReset();
+        context.setVariable(dataKey, frontendHost + resourceConfirmResetPass + "/" + data);
+      }
     }
-    result.put(messageKey, templateEngine.process("nevis_mailing_" + type, context));
+    result.put(messageKey, templateEngine.process(module + "_mailing_" + type, context));
     return result;
   }
 }

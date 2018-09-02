@@ -1,5 +1,7 @@
 package dwfe.db.mailing;
 
+import dwfe.db.other.DwfeModule;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -24,6 +26,9 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   @Id
   private String email;
 
+  @Enumerated(EnumType.STRING)
+  private DwfeModule module;
+
   private String data;
   private volatile boolean sent;
   private volatile boolean maxAttemptsReached;
@@ -36,21 +41,22 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   @Transient
   private AtomicInteger attempt = new AtomicInteger(0);
 
-  public static DwfeMailing of(DwfeMailingType type, String email, String data)
+  public static DwfeMailing of(DwfeMailingType type, String email, DwfeModule module, String data)
   {
     var mailing = new DwfeMailing();
     mailing.setCreatedOn(LocalDateTime.now());
     mailing.setType(type);
     mailing.setEmail(email);
+    mailing.setModule(module);
     mailing.setData(data);
     mailing.setSent(false);
     mailing.setMaxAttemptsReached(false);
     return mailing;
   }
 
-  public static DwfeMailing of(DwfeMailingType type, String email)
+  public static DwfeMailing of(DwfeMailingType type, String email, DwfeModule module)
   {
-    return of(type, email, "");
+    return of(type, email, module, "");
   }
 
   public void clear()
@@ -92,6 +98,16 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   public void setEmail(String email)
   {
     this.email = email;
+  }
+
+  public DwfeModule getModule()
+  {
+    return module;
+  }
+
+  public void setModule(DwfeModule module)
+  {
+    this.module = module;
   }
 
   public String getData()
