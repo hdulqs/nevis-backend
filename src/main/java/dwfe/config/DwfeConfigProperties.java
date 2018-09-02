@@ -31,7 +31,7 @@ public class DwfeConfigProperties implements InitializingBean
       scheduledTaskMailing.setTimeoutForDuplicateRequest(
               scheduledTaskMailing.getSendInterval() * scheduledTaskMailing.getMaxAttemptsToSendIfError());
 
-    log.warn(toString());
+    log.info(toString());
   }
 
 
@@ -139,7 +139,7 @@ public class DwfeConfigProperties implements InitializingBean
   {
     return String.format("%n%n" +
                     "-====================================================-%n" +
-                    "|                    ★★★ DWFE ★★★                     %n" +
+                    "|                  Do|While|For|Each                 |%n" +
                     "|----------------------------------------------------|%n" +
                     "|                                                     %n" +
                     "| Scheduled Task - Mailing:                           %n" +

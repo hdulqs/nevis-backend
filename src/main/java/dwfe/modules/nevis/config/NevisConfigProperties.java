@@ -57,7 +57,7 @@ public class NevisConfigProperties implements InitializingBean
     var port = env.getProperty("server.port");
     apiRoot = "http://" + address + ":" + port + api;
 
-    log.warn(toString());
+    log.info(toString());
   }
 
   public static class Resource
@@ -759,7 +759,7 @@ public class NevisConfigProperties implements InitializingBean
   {
     return String.format("%n%n" +
                     "-====================================================-%n" +
-                    "|                  \uD83D\uDD11\uD83D\uDD11 Nevis \uD83D\uDD11\uD83D\uDD11                 %n" +
+                    "|                        Nevis                       |%n" +
                     "|----------------------------------------------------|%n" +
                     "|                                                     %n" +
                     "| API Root                          %s%n" +
@@ -824,7 +824,7 @@ public class NevisConfigProperties implements InitializingBean
                     "|                                                     %n" +
                     "| FRONTEND                                            %n" +
                     "|                                                     %n" +
-                    "|   resources for:                                    %n" +
+                    "|   Resources for:                                    %n" +
                     "|     password rest            %s%n" +
                     "|     email confirm            %s%n" +
                     "|     account                  %s%n" +

@@ -2,8 +2,12 @@
 
     <include resource="log/logback-appender-file-prod.xml"/>
 
-    <root level="WARN">
+    <root level="ERROR">
         <appender-ref ref="FILE"/>
     </root>
+
+    <logger name="dwfe.DwfeApp" level="INFO"/>
+    <logger name="dwfe.config.DwfeConfigProperties" level="INFO"/>
+    <logger name="dwfe.modules.nevis.config.NevisConfigProperties" level="INFO"/>
 
 </configuration>
