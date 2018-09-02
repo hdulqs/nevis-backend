@@ -1,4 +1,4 @@
-USE nevis_dev;
+USE dwfe_dev;
 
 LOCK TABLES
 nevis_authorities WRITE,

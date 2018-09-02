@@ -12,10 +12,10 @@ import dwfe.modules.nevis.db.account.personal.NevisAccountPersonal;
 import dwfe.modules.nevis.db.account.personal.NevisAccountPersonalService;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhone;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhoneService;
-import dwfe.modules.nevis.db.mailing.NevisMailing;
-import dwfe.modules.nevis.db.mailing.NevisMailingService;
-import dwfe.modules.nevis.db.other.country.NevisCountryService;
-import dwfe.modules.nevis.db.other.gender.NevisGender;
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
+import dwfe.db.other.country.NevisCountryService;
+import dwfe.db.other.gender.DwfeGender;
 import dwfe.modules.nevis.util.NevisUtil;
 import dwfe.util.DwfeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 import static dwfe.modules.nevis.db.account.access.NevisAccountThirdParty.FACEBOOK;
 import static dwfe.modules.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.modules.nevis.db.account.access.NevisAccountUsernameType.*;
-import static dwfe.modules.nevis.db.mailing.NevisMailingType.*;
+import static dwfe.db.mailing.DwfeMailingType.*;
 import static dwfe.modules.nevis.util.NevisUtil.*;
 import static dwfe.util.DwfeUtil.*;
 
@@ -59,11 +59,11 @@ public class NevisControllerV1
   private final NevisAccountEmailService emailService;
   private final NevisAccountPhoneService phoneService;
   private final NevisAccountPersonalService personalService;
-  private final NevisMailingService mailingService;
+  private final DwfeMailingService mailingService;
   private final NevisCountryService countryService;
 
   @Autowired
-  public NevisControllerV1(NevisConfigProperties prop, DwfeUtil dwfeUtil, NevisUtil nevisUtil, RestTemplateBuilder restTemplateBuilder, ConsumerTokenServices tokenServices, NevisAccountAccessService accessService, NevisAccountEmailService emailService, NevisAccountPhoneService phoneService, NevisAccountPersonalService personalService, NevisMailingService mailingService, NevisCountryService countryService)
+  public NevisControllerV1(NevisConfigProperties prop, DwfeUtil dwfeUtil, NevisUtil nevisUtil, RestTemplateBuilder restTemplateBuilder, ConsumerTokenServices tokenServices, NevisAccountAccessService accessService, NevisAccountEmailService emailService, NevisAccountPhoneService phoneService, NevisAccountPersonalService personalService, DwfeMailingService mailingService, NevisCountryService countryService)
   {
     this.prop = prop;
     this.dwfeUtil = dwfeUtil;
@@ -258,7 +258,7 @@ public class NevisControllerV1
 
       // TABLE - Mailing
       var mailingType = automaticallyGeneratedPassword.isEmpty() ? WELCOME_ONLY : WELCOME_PASSWORD;
-      var mailing = NevisMailing.of(mailingType, aEmail.getValue(), automaticallyGeneratedPassword);
+      var mailing = DwfeMailing.of(mailingType, aEmail.getValue(), automaticallyGeneratedPassword);
 
       // Save new Account
       accessService.save(
@@ -513,7 +513,7 @@ public class NevisControllerV1
       {
         var email = emailService.findById(id).map(NevisAccountEmail::getValue).orElse(null);
         aAccess.setPassword(preparePasswordForDB(newpass));
-        accessService.save(aAccess, NevisMailing.of(PASSWORD_WAS_CHANGED, email), mailingService);
+        accessService.save(aAccess, DwfeMailing.of(PASSWORD_WAS_CHANGED, email), mailingService);
       }
       else errorCodes.add("wrong-" + req.curpassFieldName);
     }
@@ -534,7 +534,7 @@ public class NevisControllerV1
       var aEmailOpt = emailService.findByValue(email);
       if (aEmailOpt.isPresent())
       {
-        mailingService.save(NevisMailing.of(type, email, getRandomStrAlphaDigit(40)));
+        mailingService.save(DwfeMailing.of(type, email, getRandomStrAlphaDigit(40)));
       }
       else errorCodes.add("email-not-exist");
     }
@@ -619,7 +619,7 @@ public class NevisControllerV1
       if (aEmail.isConfirmed())
         errorCodes.add("email-is-already-confirmed");
       else if (dwfeUtil.isAllowedNewRequestForMailing(type, email, errorCodes))
-        mailingService.save(NevisMailing.of(type, email, getRandomStrAlphaDigit(40)));
+        mailingService.save(DwfeMailing.of(type, email, getRandomStrAlphaDigit(40)));
     }
     else errorCodes.add("no-email-associated-with-account");
     return getResponse(errorCodes);
@@ -1155,7 +1155,7 @@ public class NevisControllerV1
     else if (isEmptyPreCheckOk(gender, "gender", errorCodes))
     {
       final var genderUpperCased = gender.toUpperCase();
-      if (Arrays.stream(NevisGender.values()).noneMatch((t) -> t.name().equals(genderUpperCased)))
+      if (Arrays.stream(DwfeGender.values()).noneMatch((t) -> t.name().equals(genderUpperCased)))
         errorCodes.add("invalid-gender");
     }
     return errorCodes.size() == 0;
@@ -1210,9 +1210,9 @@ public class NevisControllerV1
     }
   }
 
-  private static NevisGender reqPrepareGender(String gender)
+  private static DwfeGender reqPrepareGender(String gender)
   {
-    return gender == null ? null : NevisGender.valueOf(gender.toUpperCase());
+    return gender == null ? null : DwfeGender.valueOf(gender.toUpperCase());
   }
 
   private static LocalDate reqPrepareDateOfBirth(String dateOfBirth)

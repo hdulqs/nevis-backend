@@ -1,4 +1,4 @@
-package dwfe.modules.nevis.db.other.country;
+package dwfe.db.other.country;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

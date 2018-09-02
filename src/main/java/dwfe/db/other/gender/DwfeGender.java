@@ -1,6 +1,6 @@
-package dwfe.modules.nevis.db.other.gender;
+package dwfe.db.other.gender;
 
-public enum NevisGender
+public enum DwfeGender
 {
   //
   // ATTENTION.

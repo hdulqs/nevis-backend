@@ -1,7 +1,7 @@
 package dwfe.modules.nevis.db.account.email;
 
-import dwfe.modules.nevis.db.mailing.NevisMailing;
-import dwfe.modules.nevis.db.mailing.NevisMailingService;
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -40,7 +40,7 @@ public class NevisAccountEmailService
 
   @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 5, rollbackFor = Throwable.class)
   public void save(NevisAccountEmail aEmail,
-                   NevisMailing mailing, NevisMailingService mailingService)
+                   DwfeMailing mailing, DwfeMailingService mailingService)
   {
     if (aEmail.getValue() != null)
       repository.save(aEmail);

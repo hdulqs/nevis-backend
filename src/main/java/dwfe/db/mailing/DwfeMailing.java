@@ -1,4 +1,4 @@
-package dwfe.modules.nevis.db.mailing;
+package dwfe.db.mailing;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -9,9 +9,9 @@ import static dwfe.util.DwfeUtil.formatDateTimeToUTCstring;
 import static dwfe.util.DwfeUtil.getJsonFieldFromObj;
 
 @Entity
-@IdClass(NevisMailing.NevisMailingId.class)
-@Table(name = "nevis_mailing")
-public class NevisMailing implements Comparable<NevisMailing>
+@IdClass(DwfeMailing.NevisMailingId.class)
+@Table(name = "dwfe_mailing")
+public class DwfeMailing implements Comparable<DwfeMailing>
 {
   @Id
   @Column(updatable = false, insertable = false)
@@ -19,7 +19,7 @@ public class NevisMailing implements Comparable<NevisMailing>
 
   @Id
   @Enumerated(EnumType.STRING)
-  private NevisMailingType type;
+  private DwfeMailingType type;
 
   @Id
   private String email;
@@ -36,9 +36,9 @@ public class NevisMailing implements Comparable<NevisMailing>
   @Transient
   private AtomicInteger attempt = new AtomicInteger(0);
 
-  public static NevisMailing of(NevisMailingType type, String email, String data)
+  public static DwfeMailing of(DwfeMailingType type, String email, String data)
   {
-    var mailing = new NevisMailing();
+    var mailing = new DwfeMailing();
     mailing.setCreatedOn(LocalDateTime.now());
     mailing.setType(type);
     mailing.setEmail(email);
@@ -48,7 +48,7 @@ public class NevisMailing implements Comparable<NevisMailing>
     return mailing;
   }
 
-  public static NevisMailing of(NevisMailingType type, String email)
+  public static DwfeMailing of(DwfeMailingType type, String email)
   {
     return of(type, email, "");
   }
@@ -74,12 +74,12 @@ public class NevisMailing implements Comparable<NevisMailing>
     this.createdOn = createdOn;
   }
 
-  public NevisMailingType getType()
+  public DwfeMailingType getType()
   {
     return type;
   }
 
-  public void setType(NevisMailingType type)
+  public void setType(DwfeMailingType type)
   {
     this.type = type;
   }
@@ -155,7 +155,7 @@ public class NevisMailing implements Comparable<NevisMailing>
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    NevisMailing that = (NevisMailing) o;
+    DwfeMailing that = (DwfeMailing) o;
 
     if (!createdOn.equals(that.createdOn)) return false;
     if (type != that.type) return false;
@@ -172,7 +172,7 @@ public class NevisMailing implements Comparable<NevisMailing>
   }
 
   @Override
-  public int compareTo(NevisMailing o)
+  public int compareTo(DwfeMailing o)
   {
     var result = 0;
     if ((result = createdOn.compareTo(o.createdOn)) == 0)
@@ -203,7 +203,7 @@ public class NevisMailing implements Comparable<NevisMailing>
   public static class NevisMailingId implements Serializable
   {
     private LocalDateTime createdOn;
-    private NevisMailingType type;
+    private DwfeMailingType type;
     private String email;
 
     @Override

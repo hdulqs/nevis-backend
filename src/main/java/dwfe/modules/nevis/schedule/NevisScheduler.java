@@ -1,9 +1,9 @@
 package dwfe.modules.nevis.schedule;
 
 import dwfe.modules.nevis.config.NevisConfigProperties;
-import dwfe.modules.nevis.db.mailing.NevisMailing;
-import dwfe.modules.nevis.db.mailing.NevisMailingService;
-import dwfe.modules.nevis.db.mailing.NevisMailingType;
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
+import dwfe.db.mailing.DwfeMailingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import static dwfe.modules.nevis.db.mailing.NevisMailingType.*;
+import static dwfe.db.mailing.DwfeMailingType.*;
 
 @Component
 @PropertySource("classpath:application.properties")
@@ -31,16 +31,16 @@ public class NevisScheduler
   private final static Logger log = LoggerFactory.getLogger(NevisScheduler.class);
 
   private final NevisConfigProperties prop;
-  private final NevisMailingService mailingService;
+  private final DwfeMailingService mailingService;
   private final JavaMailSender mailSender;
   private final TemplateEngine templateEngine; // Thymeleaf
 
-  private static final ConcurrentSkipListSet<NevisMailing> MAILING_POOL = new ConcurrentSkipListSet<>();
+  private static final ConcurrentSkipListSet<DwfeMailing> MAILING_POOL = new ConcurrentSkipListSet<>();
   private final int maxAttemptsMailingIfError;
   private final String sendFrom;
 
   @Autowired
-  public NevisScheduler(Environment env, NevisConfigProperties prop, NevisMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
+  public NevisScheduler(Environment env, NevisConfigProperties prop, DwfeMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
   {
     this.prop = prop;
     this.mailingService = mailingService;
@@ -68,7 +68,7 @@ public class NevisScheduler
   public void sendingMail()
   {
     log.debug("mailing [{}] before sending", MAILING_POOL.size());
-    final var toDataBase = new ArrayList<NevisMailing>();
+    final var toDataBase = new ArrayList<DwfeMailing>();
     MAILING_POOL.forEach(next -> {
       var type = next.getType();
       var email = next.getEmail();
@@ -117,14 +117,14 @@ public class NevisScheduler
     }
   }
 
-  private void clearMailing(NevisMailingType type, NevisMailing mailing)
+  private void clearMailing(DwfeMailingType type, DwfeMailing mailing)
   {
     // if not confirmation
     if (!(EMAIL_CONFIRM.equals(type) || PASSWORD_RESET_CONFIRM.equals(type)))
       mailing.clear();
   }
 
-  private Map<String, String> getSubjectMessage(NevisMailingType type, String data)
+  private Map<String, String> getSubjectMessage(DwfeMailingType type, String data)
   {
     var result = new HashMap<String, String>();
     var subjKey = "subject";

@@ -1,6 +1,6 @@
 package dwfe.modules.nevis.db.account.personal;
 
-import dwfe.modules.nevis.db.other.gender.NevisGender;
+import dwfe.db.other.gender.DwfeGender;
 import dwfe.util.DwfeUtil;
 
 import javax.persistence.*;
@@ -29,7 +29,7 @@ public class NevisAccountPersonal
   private Boolean lastNameNonPublic;
 
   @Enumerated(EnumType.STRING)
-  private NevisGender gender;
+  private DwfeGender gender;
   private Boolean genderNonPublic;
 
   private LocalDate dateOfBirth;
@@ -55,7 +55,7 @@ public class NevisAccountPersonal
                                         String firstName, boolean firstNameNonPublic,
                                         String middleName, boolean middleNameNonPublic,
                                         String lastName, boolean lastNameNonPublic,
-                                        NevisGender gender, boolean genderNonPublic,
+                                        DwfeGender gender, boolean genderNonPublic,
                                         LocalDate dateOfBirth, boolean dateOfBirthNonPublic,
                                         String country, boolean countryNonPublic,
                                         String city, boolean cityNonPublic,
@@ -181,12 +181,12 @@ public class NevisAccountPersonal
     this.lastNameNonPublic = lastNameNonPublic;
   }
 
-  public NevisGender getGender()
+  public DwfeGender getGender()
   {
     return gender;
   }
 
-  public void setGender(NevisGender gender)
+  public void setGender(DwfeGender gender)
   {
     this.gender = gender;
   }

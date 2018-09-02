@@ -1,6 +1,6 @@
-package dwfe.modules.nevis.db.mailing;
+package dwfe.db.mailing;
 
-public enum NevisMailingType
+public enum DwfeMailingType
 {
   //
   // ATTENTION.

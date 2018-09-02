@@ -6,8 +6,8 @@ import dwfe.modules.nevis.db.account.personal.NevisAccountPersonal;
 import dwfe.modules.nevis.db.account.personal.NevisAccountPersonalService;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhone;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhoneService;
-import dwfe.modules.nevis.db.mailing.NevisMailing;
-import dwfe.modules.nevis.db.mailing.NevisMailingService;
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -171,7 +171,7 @@ public class NevisAccountAccessService implements UserDetailsService
 
   @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 5, rollbackFor = Throwable.class)
   public void save(NevisAccountAccess aAccess,
-                   NevisMailing mailing, NevisMailingService mailingService)
+                   DwfeMailing mailing, DwfeMailingService mailingService)
   {
     accessRepository.save(aAccess);
     if (mailing.getEmail() != null)
@@ -183,7 +183,7 @@ public class NevisAccountAccessService implements UserDetailsService
                    NevisAccountEmail aEmail, NevisAccountEmailService emailService,
                    NevisAccountPhone aPhone, NevisAccountPhoneService phoneService,
                    NevisAccountPersonal aPersonal, NevisAccountPersonalService personalService,
-                   NevisMailing mailing, NevisMailingService mailingService)
+                   DwfeMailing mailing, DwfeMailingService mailingService)
   {
     aAccess = accessRepository.save(aAccess);
 

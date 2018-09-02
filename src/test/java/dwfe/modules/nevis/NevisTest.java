@@ -11,9 +11,9 @@ import dwfe.modules.nevis.db.account.personal.NevisAccountPersonal;
 import dwfe.modules.nevis.db.account.personal.NevisAccountPersonalService;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhone;
 import dwfe.modules.nevis.db.account.phone.NevisAccountPhoneService;
-import dwfe.modules.nevis.db.mailing.NevisMailing;
-import dwfe.modules.nevis.db.mailing.NevisMailingService;
-import dwfe.modules.nevis.db.mailing.NevisMailingType;
+import dwfe.db.mailing.DwfeMailing;
+import dwfe.db.mailing.DwfeMailingService;
+import dwfe.db.mailing.DwfeMailingType;
 import dwfe.modules.nevis.test.NevisTestAuth;
 import dwfe.modules.nevis.test.NevisTestChecker;
 import dwfe.modules.nevis.test.NevisTestClient;
@@ -38,8 +38,8 @@ import java.util.stream.Collectors;
 
 import static dwfe.modules.nevis.db.account.access.NevisAccountThirdParty.GOOGLE;
 import static dwfe.modules.nevis.db.account.access.NevisAccountUsernameType.*;
-import static dwfe.modules.nevis.db.mailing.NevisMailingType.*;
-import static dwfe.modules.nevis.db.other.gender.NevisGender.M;
+import static dwfe.db.mailing.DwfeMailingType.*;
+import static dwfe.db.other.gender.DwfeGender.M;
 import static dwfe.modules.nevis.test.NevisTestAuthType.SIGN_IN;
 import static dwfe.modules.nevis.test.NevisTestAuthorityLevel.USER;
 import static dwfe.modules.nevis.test.NevisTestResourceAccessingType.USUAL;
@@ -80,7 +80,7 @@ public class NevisTest
   @Autowired
   private NevisAccountPersonalService personalService;
   @Autowired
-  private NevisMailingService mailingService;
+  private DwfeMailingService mailingService;
 
 
   //-------------------------------------------------------
@@ -991,24 +991,24 @@ public class NevisTest
     return aPersonalOpt.get();
   }
 
-  private List<NevisMailing> getMailingListByTypeAndEmail(NevisMailingType type, String email)
+  private List<DwfeMailing> getMailingListByTypeAndEmail(DwfeMailingType type, String email)
   {
     return mailingService.findByTypeAndEmail(type, email);
   }
 
-  private NevisMailing getMailingLastSentNotEmptyData(NevisMailingType type, String email)
+  private DwfeMailing getMailingLastSentNotEmptyData(DwfeMailingType type, String email)
   {
     var mailingOpt = mailingService.findLastSentNotEmptyData(type, email);
     assertTrue(mailingOpt.isPresent());
     return mailingOpt.get();
   }
 
-  private List<NevisMailing> getMailingSentNotEmptyData(NevisMailingType type, String email)
+  private List<DwfeMailing> getMailingSentNotEmptyData(DwfeMailingType type, String email)
   {
     return mailingService.findSentNotEmptyData(type, email);
   }
 
-  private NevisMailing getMailingFirstOfOne(NevisMailingType type, String email)
+  private DwfeMailing getMailingFirstOfOne(DwfeMailingType type, String email)
   {
     var mailing = getMailingListByTypeAndEmail(type, email);
     assertEquals(1, mailing.size());
