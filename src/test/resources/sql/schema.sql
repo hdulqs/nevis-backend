@@ -19,16 +19,16 @@ SET FOREIGN_KEY_CHECKS = 1;
 --
 
 CREATE TABLE dwfe_mailing (
-  created_on            DATETIME                                                                                                     NOT NULL               DEFAULT CURRENT_TIMESTAMP,
+  created_on            DATETIME                                                                                                     NOT NULL                DEFAULT CURRENT_TIMESTAMP,
+  module                ENUM ('NEVIS')                                                                                               NOT NULL,
   `type`                ENUM ('WELCOME_ONLY', 'WELCOME_PASSWORD', 'PASSWORD_WAS_CHANGED', 'PASSWORD_RESET_CONFIRM', 'EMAIL_CONFIRM') NOT NULL,
   email                 VARCHAR(50)                                                                                                  NOT NULL,
-  module                ENUM ('NEVIS')                                                                                               NOT NULL,
   sent                  TINYINT(1)                                                                                                   NOT NULL,
   max_attempts_reached  TINYINT(1)                                                                                                   NOT NULL,
-  data                  VARCHAR(2000)                                                                                                NOT NULL               DEFAULT '',
+  data                  VARCHAR(2000)                                                                                                NOT NULL                DEFAULT '',
   cause_of_last_failure VARCHAR(2000),
-  updated_on            DATETIME ON UPDATE CURRENT_TIMESTAMP                                                                                                DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (created_on, `type`, email)
+  updated_on            DATETIME ON UPDATE CURRENT_TIMESTAMP                                                                         NOT NULL                DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (created_on, module, `type`, email)
 )
   ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

@@ -2,9 +2,10 @@ package dwfe.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dwfe.modules.nevis.config.NevisConfigProperties;
 import dwfe.db.mailing.DwfeMailingService;
 import dwfe.db.mailing.DwfeMailingType;
+import dwfe.db.other.DwfeModule;
+import dwfe.modules.nevis.config.NevisConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Component;
@@ -211,9 +212,9 @@ public class DwfeUtil
   }
 
 
-  public boolean isAllowedNewRequestForMailing(DwfeMailingType type, String email, List<String> errorCodes)
+  public boolean isAllowedNewRequestForMailing(DwfeModule module, DwfeMailingType type, String email, List<String> errorCodes)
   {
-    var lastPending = mailingService.findLastByTypeAndEmail(type, email);
+    var lastPending = mailingService.findLastByModuleAndTypeAndEmail(module, type, email);
     if (lastPending.isPresent())
     {
       var whenNewIsAllowed = lastPending.get()

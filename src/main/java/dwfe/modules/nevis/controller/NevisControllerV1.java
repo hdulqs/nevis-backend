@@ -1,9 +1,9 @@
 package dwfe.modules.nevis.controller;
 
+import dwfe.db.country.NevisCountryService;
 import dwfe.db.mailing.DwfeMailing;
 import dwfe.db.mailing.DwfeMailingService;
 import dwfe.db.other.DwfeGender;
-import dwfe.db.country.NevisCountryService;
 import dwfe.modules.nevis.config.NevisConfigProperties;
 import dwfe.modules.nevis.db.account.access.NevisAccountAccess;
 import dwfe.modules.nevis.db.account.access.NevisAccountAccessService;
@@ -530,7 +530,7 @@ public class NevisControllerV1
 
     if (isDefaultPreCheckOk(email, "email", errorCodes)
             && standardEmailCheck(email, "email", errorCodes)
-            && dwfeUtil.isAllowedNewRequestForMailing(type, email, errorCodes))
+            && dwfeUtil.isAllowedNewRequestForMailing(NEVIS, type, email, errorCodes))
     {
       var aEmailOpt = emailService.findByValue(email);
       if (aEmailOpt.isPresent())
@@ -553,7 +553,7 @@ public class NevisControllerV1
     if (canUsePassword(newpass, req.newpassField, errorCodes)
             && isDefaultPreCheckOk(key, req.keyFieldFullName, errorCodes))
     {
-      var mailingOpt = mailingService.findByTypeAndData(PASSWORD_RESET_CONFIRM, key);
+      var mailingOpt = mailingService.findByModuleAndTypeAndData(NEVIS, PASSWORD_RESET_CONFIRM, key);
       if (mailingOpt.isPresent())
       {
         var mailing = mailingOpt.get();
@@ -619,7 +619,7 @@ public class NevisControllerV1
       var email = aEmail.getValue();
       if (aEmail.isConfirmed())
         errorCodes.add("email-is-already-confirmed");
-      else if (dwfeUtil.isAllowedNewRequestForMailing(type, email, errorCodes))
+      else if (dwfeUtil.isAllowedNewRequestForMailing(NEVIS, type, email, errorCodes))
         mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomStrAlphaDigit(40)));
     }
     else errorCodes.add("no-email-associated-with-account");
@@ -635,7 +635,7 @@ public class NevisControllerV1
 
     if (isDefaultPreCheckOk(key, fieldName, errorCodes))
     {
-      var mailingOpt = mailingService.findByTypeAndData(EMAIL_CONFIRM, key);
+      var mailingOpt = mailingService.findByModuleAndTypeAndData(NEVIS, EMAIL_CONFIRM, key);
       if (mailingOpt.isPresent())
       {
         var mailing = mailingOpt.get();

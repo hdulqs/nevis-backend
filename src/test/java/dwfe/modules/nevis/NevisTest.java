@@ -239,7 +239,7 @@ public class NevisTest
             null, true,                           // company
             null, true)                           // positionHeld
     );
-    var mailingList = mailingService.findByEmail(Account4_EMAIL);
+    var mailingList = mailingService.findByModuleAndEmail(NEVIS, Account4_EMAIL);
     assertEquals(0, mailingList.size());
 
 
@@ -261,7 +261,7 @@ public class NevisTest
             "Home Ltd.", true,    // company
             "programmer", true)   // positionHeld
     );
-    mailingList = mailingService.findByEmail(Account5_EMAIL);
+    mailingList = mailingService.findByModuleAndEmail(NEVIS, Account5_EMAIL);
     assertEquals(0, mailingList.size());
 
 
@@ -426,7 +426,7 @@ public class NevisTest
     var timeToWait = TimeUnit.MILLISECONDS.toSeconds(prop.getScheduledTaskMailing().getCollectFromDbInterval()) * 3;
     var type = PASSWORD_RESET_CONFIRM;
 
-    assertEquals(0, mailingService.findByTypeAndEmail(type, username).size());
+    assertEquals(0, mailingService.findByModuleAndTypeAndEmail(NEVIS, type, username).size());
 
     util.check(POST, resource, null, checkers_for_passwordResetReq(username));
     util.check(POST, resource, null, checkers_for_passwordResetReq_duplicateDelay(username));
@@ -439,7 +439,7 @@ public class NevisTest
     util.check(POST, resource, null, checkers_for_passwordResetReq(username));
 
     pleaseWait(timeToWait);
-    assertEquals(2, mailingService.findSentNotEmptyData(type, username).size());
+    assertEquals(2, mailingService.findSentNotEmptyData(NEVIS, type, username).size());
   }
 
   private void passwordReset(String username, NevisAccountUsernameType usernameType, String curpass, String newpass, String newpassForCheckers)
@@ -449,7 +449,7 @@ public class NevisTest
     var type = PASSWORD_RESET_CONFIRM;
     var clientTrusted = client.getClientTrusted();
 
-    var mailingList = mailingService.findSentNotEmptyData(type, username);
+    var mailingList = mailingService.findSentNotEmptyData(NEVIS, type, username);
     assertEquals(2, mailingList.size());
 
     var auth1 = auth.of(username, usernameType, newpass, clientTrusted);
@@ -461,7 +461,7 @@ public class NevisTest
     util.check(POST, prop.getResource().getPasswordReset(), null,
             checkers_for_passwordReset(username, newpassForCheckers, mailingList.get(0).getData()));
 
-    assertEquals(1, mailingService.findSentNotEmptyData(type, username).size());
+    assertEquals(1, mailingService.findSentNotEmptyData(NEVIS, type, username).size());
 
     util.tokenProcess(SIGN_IN, auth1, 400);
     auth1.password = newpass;
@@ -991,32 +991,26 @@ public class NevisTest
 
   private List<DwfeMailing> getMailingListByTypeAndEmail(DwfeMailingType type, String email)
   {
-    return mailingService.findByTypeAndEmail(type, email);
+    return mailingService.findByModuleAndTypeAndEmail(NEVIS, type, email);
   }
 
   private DwfeMailing getMailingLastSentNotEmptyData(DwfeMailingType type, String email)
   {
-    var mailingOpt = mailingService.findLastSentNotEmptyData(type, email);
+    var mailingOpt = mailingService.findLastSentNotEmptyData(NEVIS, type, email);
     assertTrue(mailingOpt.isPresent());
-    var letter = mailingOpt.get();
-    assertEquals(NEVIS, letter.getModule());
-    return letter;
+    return mailingOpt.get();
   }
 
   private List<DwfeMailing> getMailingSentNotEmptyData(DwfeMailingType type, String email)
   {
-    var list = mailingService.findSentNotEmptyData(type, email);
-    list.forEach(next -> assertEquals(NEVIS, next.getModule()));
-    return list;
+    return mailingService.findSentNotEmptyData(NEVIS, type, email);
   }
 
   private DwfeMailing getMailingFirstOfOne(DwfeMailingType type, String email)
   {
     var mailing = getMailingListByTypeAndEmail(type, email);
     assertEquals(1, mailing.size());
-    var letter = mailing.get(0);
-    assertEquals(NEVIS, letter.getModule());
-    return letter;
+    return mailing.get(0);
   }
 
   private void pleaseWait(long timeToWait)

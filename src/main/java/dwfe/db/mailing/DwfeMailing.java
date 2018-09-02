@@ -21,13 +21,14 @@ public class DwfeMailing implements Comparable<DwfeMailing>
 
   @Id
   @Enumerated(EnumType.STRING)
+  private DwfeModule module;
+
+  @Id
+  @Enumerated(EnumType.STRING)
   private DwfeMailingType type;
 
   @Id
   private String email;
-
-  @Enumerated(EnumType.STRING)
-  private DwfeModule module;
 
   private String data;
   private volatile boolean sent;
@@ -80,6 +81,16 @@ public class DwfeMailing implements Comparable<DwfeMailing>
     this.createdOn = createdOn;
   }
 
+  public DwfeModule getModule()
+  {
+    return module;
+  }
+
+  public void setModule(DwfeModule module)
+  {
+    this.module = module;
+  }
+
   public DwfeMailingType getType()
   {
     return type;
@@ -98,16 +109,6 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   public void setEmail(String email)
   {
     this.email = email;
-  }
-
-  public DwfeModule getModule()
-  {
-    return module;
-  }
-
-  public void setModule(DwfeModule module)
-  {
-    this.module = module;
   }
 
   public String getData()
@@ -165,6 +166,7 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   //  equals, hashCode, compareTo, toString
   //
 
+
   @Override
   public boolean equals(Object o)
   {
@@ -174,6 +176,7 @@ public class DwfeMailing implements Comparable<DwfeMailing>
     DwfeMailing that = (DwfeMailing) o;
 
     if (!createdOn.equals(that.createdOn)) return false;
+    if (module != that.module) return false;
     if (type != that.type) return false;
     return email.equals(that.email);
   }
@@ -182,6 +185,7 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   public int hashCode()
   {
     int result = createdOn.hashCode();
+    result = 31 * result + module.hashCode();
     result = 31 * result + type.hashCode();
     result = 31 * result + email.hashCode();
     return result;
@@ -191,9 +195,10 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   public int compareTo(DwfeMailing o)
   {
     var result = 0;
-    if ((result = createdOn.compareTo(o.createdOn)) == 0)
-      if ((result = type.compareTo(o.type)) == 0)
-        result = email.compareTo(o.email);
+    if ((result = module.compareTo(o.module)) == 0)
+      if ((result = createdOn.compareTo(o.createdOn)) == 0)
+        if ((result = type.compareTo(o.type)) == 0)
+          result = email.compareTo(o.email);
     return result;
   }
 
@@ -201,6 +206,7 @@ public class DwfeMailing implements Comparable<DwfeMailing>
   public String toString()
   {
     return "{\n" +
+            " " + getJsonFieldFromObj("module", module) + ",\n" +
             " \"createdOn\": " + "\"" + formatDateTimeToUTCstring(createdOn) + "\",\n" +
             " " + getJsonFieldFromObj("type", type) + ",\n" +
             " " + getJsonFieldFromObj("email", email) + ",\n" +
@@ -218,6 +224,7 @@ public class DwfeMailing implements Comparable<DwfeMailing>
 
   public static class NevisMailingId implements Serializable
   {
+    private DwfeModule module;
     private LocalDateTime createdOn;
     private DwfeMailingType type;
     private String email;
@@ -230,6 +237,7 @@ public class DwfeMailing implements Comparable<DwfeMailing>
 
       NevisMailingId that = (NevisMailingId) o;
 
+      if (module != that.module) return false;
       if (!createdOn.equals(that.createdOn)) return false;
       if (type != that.type) return false;
       return email.equals(that.email);
@@ -238,7 +246,8 @@ public class DwfeMailing implements Comparable<DwfeMailing>
     @Override
     public int hashCode()
     {
-      int result = createdOn.hashCode();
+      int result = module.hashCode();
+      result = 31 * result + createdOn.hashCode();
       result = 31 * result + type.hashCode();
       result = 31 * result + email.hashCode();
       return result;

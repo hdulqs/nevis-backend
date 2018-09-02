@@ -1,5 +1,6 @@
 package dwfe.db.mailing;
 
+import dwfe.db.other.DwfeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,43 +25,34 @@ public class DwfeMailingService
     return repository.getNewJob();
   }
 
-  public List<DwfeMailing> findByEmail(String email)
+  public List<DwfeMailing> findByModuleAndEmail(DwfeModule module, String email)
   {
-    return repository.findByEmail(email);
+    return repository.findByModuleAndEmail(module, email);
   }
 
-  public List<DwfeMailing> findByTypeAndEmail(DwfeMailingType type, String email)
+  public List<DwfeMailing> findByModuleAndTypeAndEmail(DwfeModule module, DwfeMailingType type, String email)
   {
-    return repository.findByTypeAndEmail(type, email);
+    return repository.findByModuleAndTypeAndEmail(module, type, email);
   }
 
-  public Optional<DwfeMailing> findLastByTypeAndEmail(DwfeMailingType type, String email)
+  public Optional<DwfeMailing> findLastByModuleAndTypeAndEmail(DwfeModule module, DwfeMailingType type, String email)
   {
-    return repository.findLastByTypeAndEmail(
-            type.toString(), // String.valueOf(type.ordinal()),
-            email
-    );
+    return repository.findLastByModuleAndTypeAndEmail(module.toString(), type.toString(), email);
   }
 
-  public Optional<DwfeMailing> findByTypeAndData(DwfeMailingType type, String data)
+  public Optional<DwfeMailing> findByModuleAndTypeAndData(DwfeModule module, DwfeMailingType type, String data)
   {
-    return repository.findByTypeAndData(type, data);
+    return repository.findByModuleAndTypeAndData(module, type, data);
   }
 
-  public List<DwfeMailing> findSentNotEmptyData(DwfeMailingType type, String email)
+  public List<DwfeMailing> findSentNotEmptyData(DwfeModule module, DwfeMailingType type, String email)
   {
-    return repository.findSentNotEmptyData(
-            type.toString(), // String.valueOf(type.ordinal()),
-            email
-    );
+    return repository.findSentNotEmptyData(module.toString(), type.toString(), email);
   }
 
-  public Optional<DwfeMailing> findLastSentNotEmptyData(DwfeMailingType type, String email)
+  public Optional<DwfeMailing> findLastSentNotEmptyData(DwfeModule module, DwfeMailingType type, String email)
   {
-    return repository.findLastSentNotEmptyData(
-            type.toString(), // String.valueOf(type.ordinal()),
-            email
-    );
+    return repository.findLastSentNotEmptyData(module.toString(), type.toString(), email);
   }
 
   @Transactional
