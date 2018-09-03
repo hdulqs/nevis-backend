@@ -4,6 +4,7 @@ LOCK TABLES
 dwfe_countries WRITE,
 nevis_authorities WRITE;
 
+
 --
 -- DWFE
 --
@@ -15,6 +16,7 @@ VALUES ('Russia', 'RU', 'RUS', '7'),
        ('United States', 'US', 'USA', '1'),
        ('United Kingdom', 'GB', 'GBR', '44'),
        ('Japan', 'JP', 'JPN', '81');
+
 
 --
 -- MODULE: Nevis

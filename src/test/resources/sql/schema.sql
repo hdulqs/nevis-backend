@@ -14,6 +14,7 @@ oauth_access_token,
 oauth_refresh_token;
 SET FOREIGN_KEY_CHECKS = 1;
 
+
 --
 -- DWFE
 --
@@ -46,9 +47,11 @@ CREATE TABLE dwfe_countries (
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
+
 --
 -- MODULE: Nevis
 --
+
 CREATE TABLE nevis_account_access (
   id                      BIGINT(20)                           NOT NULL   AUTO_INCREMENT,
   password                VARCHAR(100)                         NOT NULL,
