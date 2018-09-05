@@ -1,4 +1,5 @@
-
+Java10 / Spring-Boot2 / OAuth2 / MySQL / RESTful 
+<br><br>
 
   * [Lifecycle](#lifecycle-of-dwfe-app)
   * [DWFE](#dwfe)
@@ -68,3 +69,8 @@ Also the list of DWFE App error-codes and their mapping see [here](./assets/erro
 ![Time Zone](./assets/img-readme/time-zone.png)
 ## Email alerts
 ![Email alerts](./assets/img-readme/email-alerts.png)
+<br><br>
+Preparation of mail templates was made in a separate project [backend-letter-templates](https://gitlab.com/nevis-proj/backend-letter-templates).
+<br>
+To fill the mail templates used [Thymeleaf](http://www.thymeleaf.org) template engine.
+
