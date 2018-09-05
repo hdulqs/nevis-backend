@@ -48,6 +48,21 @@
 # Other
 ## Errors
 ![Errors](./assets/img-readme/errors.png)
+The list of OAuth2 server error-codes and their mapping see [here](./assets/error-mapping/oauth2-server-error-mapping.js) (may not include unknown errors to me).
+<br>
+Also you should know that under one error-code, there may be several different error_description.
+<br>
+For example `invalid_grant` error-code can be returned with the following error_descriptions:<br>
+   * *Bad credentials* - if login or/and password is incorrect
+   * *User is disabled* - if enabled field set to false
+   * *User account is locked* - if account_non_locked field set to false
+   * *User credentials have expired* - if credentials_non_expired field set to false
+   * *User account has expired* - if account_non_expired field set to false
+<br>
+In this regard, it may be worthwhile instead of mapping error-codes to output error_description.
+<br>
+Also the list of DWFE App error-codes and their mapping see [here](./assets/error-mapping/dwfe-app-error-mapping.js).
+
 ## Time Zone
 ![Time Zone](./assets/img-readme/time-zone.png)
 ## Email alerts
