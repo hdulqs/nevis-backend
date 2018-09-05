@@ -5,7 +5,7 @@
 	<key>0BBD192D-9959-4F16-A334-A881A0F36EE1</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -19,21 +19,21 @@
 	<key>281CEAC0-E631-43D0-94BD-E1EDA3F8B62F</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
 	<key>2DBD44C6-657D-4F00-A325-171438F88E24</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
 	<key>2E648093-010D-485A-95C3-9BA3276FEBCF</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -47,7 +47,7 @@
 	<key>35CDA0EB-F33A-4B9A-8E31-5EA178779CBF</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 224}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -75,7 +75,7 @@
 	<key>7DEC7F41-F4AC-403F-91AE-D4F67809630C</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -84,7 +84,7 @@
 	<key>C1656DF6-5BBD-4888-A9F8-3A66D27C3B13</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 317}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -105,14 +105,14 @@
 	<key>DA4F1772-0D6A-4CC2-8B65-06697726DC5F</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 154}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
 	<key>DAFA36F5-F05D-4136-8C57-32D16DC6E513</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -133,7 +133,7 @@
 	<key>FEF52C9B-2794-4368-A346-FF49537C98BA</key>
 	<dict>
 		<key>Visible Rect</key>
-		<string>{{0, 0}, {1195, 662}}</string>
+		<string>{{0, 0}, {1185, 662}}</string>
 		<key>Zoom Factor</key>
 		<real>1</real>
 	</dict>
@@ -143,7 +143,7 @@
 	<array/>
 	<key>Last Viewed Ideaspaces For Section 5A3A430D-1260-44EB-A991-F8E76C236F17</key>
 	<array>
-		<string>6EEBF9E3-7B0F-4EB1-91A0-4FF575CABE0D</string>
+		<string>32E9A6E4-7BB2-47E6-B623-DEC7F91F4361</string>
 	</array>
 	<key>Last Viewed Section</key>
 	<array>
@@ -156,7 +156,7 @@
 	<key>Organizer Width</key>
 	<integer>180</integer>
 	<key>Primary Asset UUID Last Viewed</key>
-	<string>6EEBF9E3-7B0F-4EB1-91A0-4FF575CABE0D</string>
+	<string>32E9A6E4-7BB2-47E6-B623-DEC7F91F4361</string>
 	<key>Scroll Position For Section 00000000-0000-0000-0000-0000000TRASH</key>
 	<string>{0, 0}</string>
 	<key>Scroll Position For Section 00000000-0000-0000-0000-00000ARCHIVE</key>
