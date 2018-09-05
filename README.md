@@ -58,9 +58,9 @@ For example `invalid_grant` error-code can be returned with the following error_
    * *User account is locked* - if account_non_locked field set to false
    * *User credentials have expired* - if credentials_non_expired field set to false
    * *User account has expired* - if account_non_expired field set to false
-<br>
+<br><br>
 In this regard, it may be worthwhile instead of mapping error-codes to output error_description.
-<br>
+<br><br>
 Also the list of DWFE App error-codes and their mapping see [here](./assets/error-mapping/dwfe-app-error-mapping.js).
 
 ## Time Zone
