@@ -48,6 +48,7 @@
 # Other
 ## Errors
 ![Errors](./assets/img-readme/errors.png)
+<br>
 The list of OAuth2 server error-codes and their mapping see [here](./assets/error-mapping/oauth2-server-error-mapping.js) (may not include unknown errors to me).
 <br>
 Also you should know that under one error-code, there may be several different error_description.
@@ -58,7 +59,8 @@ For example `invalid_grant` error-code can be returned with the following error_
    * *User account is locked* - if account_non_locked field set to false
    * *User credentials have expired* - if credentials_non_expired field set to false
    * *User account has expired* - if account_non_expired field set to false
-<br><br>
+  
+<br>
 In this regard, it may be worthwhile instead of mapping error-codes to output error_description.
 <br><br>
 Also the list of DWFE App error-codes and their mapping see [here](./assets/error-mapping/dwfe-app-error-mapping.js).
