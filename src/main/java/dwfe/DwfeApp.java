@@ -1,33 +1,26 @@
 package dwfe;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
-@SpringBootApplication
 @EnableScheduling
+@SpringBootApplication
 @PropertySource("classpath:application.properties")
 public class DwfeApp
 {
-  private final Environment env;
-
-  @Autowired
-  public DwfeApp(Environment env)
-  {
-    this.env = env;
-  }
+  @Value("${spring.jpa.properties.hibernate.jdbc.time_zone}")
+  private String timeZone;
 
   @PostConstruct
   void started()
   {
-    var time_zone = env.getProperty("spring.jpa.properties.hibernate.jdbc.time_zone");
-    TimeZone.setDefault(TimeZone.getTimeZone(time_zone));
+    TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
   }
 
   public static void main(String[] args)

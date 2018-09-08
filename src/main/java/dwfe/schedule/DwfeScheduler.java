@@ -9,8 +9,8 @@ import dwfe.modules.nevis.config.NevisConfigProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -41,10 +41,12 @@ public class DwfeScheduler
 
   private static final ConcurrentSkipListSet<DwfeMailing> MAILING_POOL = new ConcurrentSkipListSet<>();
   private final int maxAttemptsMailingIfError;
-  private final String sendFrom;
+
+  @Value("${spring.mail.username}")
+  private String sendFrom;
 
   @Autowired
-  public DwfeScheduler(Environment env, DwfeConfigProperties propDwfe, NevisConfigProperties propNevis, DwfeMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
+  public DwfeScheduler(DwfeConfigProperties propDwfe, NevisConfigProperties propNevis, DwfeMailingService mailingService, JavaMailSender mailSender, TemplateEngine templateEngine)
   {
     this.propDwfe = propDwfe;
     this.propNevis = propNevis;
@@ -53,7 +55,6 @@ public class DwfeScheduler
     this.templateEngine = templateEngine;
 
     this.maxAttemptsMailingIfError = propDwfe.getScheduledTaskMailing().getMaxAttemptsToSendIfError();
-    this.sendFrom = env.getProperty("spring.mail.username");
   }
 
 
