@@ -47,6 +47,7 @@ public class NevisWebSecurityConfigurer extends WebSecurityConfigurerAdapter
 
   private DelegatingPasswordEncoder bcrypt()
   {
+    // == https://docs.spring.io/spring-security/site/docs/current/reference/html/core-services.html#pe-dpe
     var encoders = new HashMap<String, PasswordEncoder>();
     var idForEncode = "bcrypt";
     encoders.put("bcrypt", new BCryptPasswordEncoder(10));

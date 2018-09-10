@@ -6,6 +6,8 @@ import dwfe.config.DwfeConfigProperties;
 import dwfe.db.mailing.DwfeMailingService;
 import dwfe.db.mailing.DwfeMailingType;
 import dwfe.db.other.DwfeModule;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -48,13 +50,37 @@ public class DwfeUtil
   // Random
   //
 
+  public static String getRandomAlphaNumeric(int requiredLength)
+  {
+    return RandomStringUtils.randomAlphanumeric(requiredLength);
+
+    // var result = getRandomStrBase64(requiredLength);
+    // return result.replaceAll("[^a-zA-Z0-9]", "");
+  }
+
+  public static String getRandomPrintableASCII(int requiredLength)
+  {
+    return new RandomStringGenerator.Builder()
+            .withinRange('!', '~') // except Space
+            .build()               // == https://en.wikipedia.org/wiki/ASCII#Printable_characters
+            .generate(requiredLength);
+  }
+
   public static String getRandomStrBase36(int requiredLength)
   {
+    // Disadvantage - the result produces without uppercase alphabetic characters:
+    //
+    // 1epmcp0gayc51k1s2ay5g6ogq2vvcy6
+    // hwsr2qa2y5muoilgcx854femz87hbnp
+    // k82c6djt7mdp78oclqcstd0d7sxyq7k
     return new BigInteger(requiredLength * 5, new SecureRandom()).toString(36);
   }
 
   public static String getRandomStrBase64(int requiredLength)
   {
+    // Common Disadvantage is that some random are not very beautiful :)
+    //
+    //
     // (requiredLength + 3) and new String(..., 2,...)
     // because first letter repeated:
     //    AfhFTjpSSg==
@@ -77,12 +103,6 @@ public class DwfeUtil
 
     var bytes = target.getBytes();
     return new String(Base64.getEncoder().encode(bytes), 2, realLength);
-  }
-
-  public static String getRandomStrAlphaDigit(int requiredLength)
-  {
-    var result = getRandomStrBase64(requiredLength);
-    return result.replaceAll("[^a-zA-Z0-9]", "");
   }
 
 

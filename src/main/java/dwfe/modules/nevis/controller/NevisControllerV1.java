@@ -154,7 +154,7 @@ public class NevisControllerV1
         //   - to phone? not implemented
       else
       {
-        automaticallyGeneratedPassword = getRandomStrAlphaDigit(15);
+        automaticallyGeneratedPassword = getRandomAlphaNumeric(15);
         password = automaticallyGeneratedPassword;
       }
     }
@@ -296,7 +296,7 @@ public class NevisControllerV1
     var errName = "";
     var data = "";
     var thirdParty = req.thirdParty;
-    var password = getRandomStrAlphaDigit(15);
+    var password = getRandomAlphaNumeric(15);
 
     String email = null;
     String firstName = null;
@@ -504,7 +504,7 @@ public class NevisControllerV1
       var aEmailOpt = emailService.findByValue(email);
       if (aEmailOpt.isPresent())
       {
-        mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomStrAlphaDigit(40)));
+        mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomAlphaNumeric(40)));
       }
       else errorCodes.add("email-not-exist");
     }
@@ -589,7 +589,7 @@ public class NevisControllerV1
       if (aEmail.isConfirmed())
         errorCodes.add("email-is-already-confirmed");
       else if (utilDwfe.isAllowedNewRequestForMailing(NEVIS, type, email, errorCodes))
-        mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomStrAlphaDigit(40)));
+        mailingService.save(DwfeMailing.of(type, email, NEVIS, getRandomAlphaNumeric(40)));
     }
     else errorCodes.add("no-email-associated-with-account");
     return getResponse(errorCodes);
